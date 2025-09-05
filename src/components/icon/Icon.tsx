@@ -93,3 +93,61 @@ export function ErrorIcon({ size, className, color }: { size: number, className?
 
   </>
 }
+
+export function UploadIcon({ size, className, color }: { size: number, className?: string, color?: string }) {
+  return <>
+    <svg width={size} height={size} className={className} viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16.4405 9.3999C20.0405 9.7099 21.5105 11.5599 21.5105 15.6099V15.7399C21.5105 20.2099 19.7205 21.9999 15.2505 21.9999H8.74047C4.27047 21.9999 2.48047 20.2099 2.48047 15.7399V15.6099C2.48047 11.5899 3.93047 9.7399 7.47047 9.4099" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12 15.5001V4.12012" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M15.3504 6.35L12.0004 3L8.65039 6.35" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </>
+}
+
+export function SearchIcon({ size, className, color }: { size: number, className?: string, color?: string }) {
+  return <>
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M22 22L20 20" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </>
+}
+
+export function FilterIcon({ size, className, color }: { size: number, className?: string, color?: string }) {
+  return <>
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22 6.5H16" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 6.5H2" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10 10C11.933 10 13.5 8.433 13.5 6.5C13.5 4.567 11.933 3 10 3C8.067 3 6.5 4.567 6.5 6.5C6.5 8.433 8.067 10 10 10Z" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M22 17.5H18" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8 17.5H2" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M14 21C15.933 21 17.5 19.433 17.5 17.5C17.5 15.567 15.933 14 14 14C12.067 14 10.5 15.567 10.5 17.5C10.5 19.433 12.067 21 14 21Z" stroke="#292D32" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </>
+}
+
+export function CheckIcon({ size, className, color }: { size: number, className?: string, color?: string }) {
+  return <>
+    <svg width={size} height={size} className={className} viewBox="0 0 19 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17 2L7 12L2 7" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </>
+}
+
+export function CloseIcon({ size, className, color }: { size: number, className?: string, color?: string }) {
+  return <>
+    <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1 1L14.9991 14.9991" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M1.00094 14.9991L15 1" stroke="#292D32" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </>
+}
+
+export function ClockIcon({ size, className, color }: { size: number, className?: string, color?: string }) {
+  return <>
+    <svg width={size} height={size} className={className} viewBox="0 0 34 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M31.1654 17.5002C31.1654 25.3202 24.8187 31.6668 16.9987 31.6668C9.1787 31.6668 2.83203 25.3202 2.83203 17.5002C2.83203 9.68016 9.1787 3.3335 16.9987 3.3335C24.8187 3.3335 31.1654 9.68016 31.1654 17.5002Z" stroke="#FF5053" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M22.2585 22.005L17.8668 19.3842C17.1018 18.9308 16.4785 17.84 16.4785 16.9475V11.1392" stroke="#FF5053" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  </>
+}

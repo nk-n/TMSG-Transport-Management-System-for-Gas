@@ -9,12 +9,24 @@
   --foreground: #171717;
 
   --primary-color: #4B83F0;
+  --primary-second-color: #EEF6FE;
   --neutral-color: #8E8E8E;
   --neutral-second-color: #F1F5F9;
   --success-color: #23C45E;
   --error-color: #FF5053;
+  --error-second-color: #FEF3F3;
+  --error-third-color: #A9281B;
+  --inprogess-color: #F0AB4B;
 }
 
 @theme inline {
   --font-sans: var(--font-noto-sans-thai)
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    scrollbar-width: none;
 }
