@@ -151,3 +151,36 @@ export function ClockIcon({ size, className, color }: { size: number, className?
     </svg>
   </>
 }
+
+export function ClipIcon({ size, className, color }: { size: number, className?: string, color?: string }) {
+  return <>
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12.3316 12.15L9.86164 14.62C8.49164 15.99 8.49164 18.2 9.86164 19.57C11.2316 20.94 13.4416 20.94 14.8116 19.57L18.7016 15.68C21.4316 12.95 21.4316 8.51004 18.7016 5.78004C15.9716 3.05004 11.5316 3.05004 8.80164 5.78004L4.56164 10.02C2.22164 12.36 2.22164 16.16 4.56164 18.51" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+
+  </>
+
+}
+
+export function FileIcon({ size, className, color }: { size: number, className?: string, color?: string }) {
+  return <>
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22 10V15C22 20 20 22 15 22H9C4 22 2 20 2 15V9C2 4 4 2 9 2H14" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M22 10H18C15 10 14 9 14 6V2L22 10Z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+
+  </>
+
+}
+
+export function FileBoldIcon({ size, className, color }: { size: number, className?: string, color?: string }) {
+  return <>
+    <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20.5 10.19H17.61C15.24 10.19 13.31 8.26 13.31 5.89V3C13.31 2.45 12.86 2 12.31 2H8.07C4.99 2 2.5 4 2.5 7.57V16.43C2.5 20 4.99 22 8.07 22H15.93C19.01 22 21.5 20 21.5 16.43V11.19C21.5 10.64 21.05 10.19 20.5 10.19Z" />
+      <path d="M15.7999 2.20999C15.3899 1.79999 14.6799 2.07999 14.6799 2.64999V6.13999C14.6799 7.59999 15.9199 8.80999 17.4299 8.80999C18.3799 8.81999 19.6999 8.81999 20.8299 8.81999C21.3999 8.81999 21.6999 8.14999 21.2999 7.74999C19.8599 6.29999 17.2799 3.68999 15.7999 2.20999Z" />
+    </svg>
+
+
+  </>
+
+}
