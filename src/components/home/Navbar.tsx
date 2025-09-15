@@ -3,7 +3,7 @@ import { MenuListType } from "../../types/ContentSectoin"
 
 export default function Navbar({ menuList, currentTab, onTabChange }: { menuList: MenuListType[], currentTab: number, onTabChange: (index: number) => void }) {
   return <>
-    <div className="bg-[var(--neutral-second-color)] p-3 flex gap-2 justify-between">
+    <div className="bg-neutral-second p-3 flex gap-2 justify-between">
       {menuList.map((element: MenuListType, index: number) => {
         return <button
           onClick={() => {

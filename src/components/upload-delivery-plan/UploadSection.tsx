@@ -41,7 +41,7 @@ export default function UploadSection({ file, setFile }: UploadSection) {
   };
 
   return <>
-    <div className="relative flex flex-col justify-center items-center w-full outline-dashed rounded-xl outline-[var(--neutral-color)] outline-[2px] px-5  gap-2 h-[300px] z-0"
+    <div className="relative flex flex-col justify-center items-center w-full outline-dashed rounded-xl outline-neutral outline-[2px] px-5  gap-2 h-[300px] z-0"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -49,9 +49,9 @@ export default function UploadSection({ file, setFile }: UploadSection) {
       {
         file == null ?
           <div className={clsx("flex justify-center items-center flex-col gap-2 transition-all")}>
-            <UploadIcon size={100} className="stroke-[var(--neutral-color)] pointer-events-none" />
-            <p><label htmlFor="upload-file" className="text-[var(--primary-color)] cursor-pointer"> คลิกเพื่อเลือกไฟล์ </label> หรือเลือกไฟล์มาวางที่นี่</p>
-            <p className="text-[var(--neutral-color)] pointer-events-none">รองรับไฟล์ Excel (.xlsx, .xls) เท่านั้น</p>
+            <UploadIcon size={100} className="stroke-neutral pointer-events-none" />
+            <p><label htmlFor="upload-file" className="text-primary cursor-pointer"> คลิกเพื่อเลือกไฟล์ </label> หรือเลือกไฟล์มาวางที่นี่</p>
+            <p className="text-neutral pointer-events-none">รองรับไฟล์ Excel (.xlsx, .xls) เท่านั้น</p>
             <input id="upload-file" type="file" className=" hidden" onChange={handleFileUpload} />
           </div>
           :
@@ -59,7 +59,7 @@ export default function UploadSection({ file, setFile }: UploadSection) {
             <button className="" onClick={() => { setFile(null) }}>
               <CloseIcon size={15} className="absolute right-[10px] top-[20px] cursor-pointer hover:scale-90 transition-all" />
             </button>
-            <FileBoldIcon size={100} className="fill-[var(--primary-color)]" />
+            <FileBoldIcon size={100} className="fill-primary" />
             <p className="text-lg">{file.name}</p>
           </div>
 
@@ -68,13 +68,13 @@ export default function UploadSection({ file, setFile }: UploadSection) {
         "backdrop-blur-md opacity-100 bg-black/5": dragFile,
         "opacity-0": !dragFile
       })}>
-        <ClipIcon size={50} className=" stroke-[var(--primary-color)]" />
+        <ClipIcon size={50} className=" stroke-primary" />
         <p>วางไฟล์ที่นี่</p>
       </div>
 
     </div>
     <div className="w-full max-w-[500px] flex gap-5">
-      <TextButton onClick={() => { }} border={false} backgroundColor="bg-[var(--primary-color)]" foregroundColor="text-white">
+      <TextButton onClick={() => { }} border={false} backgroundColor="bg-primary" foregroundColor="text-white">
         <p>อัปโหลดแผนการจัดส่ง</p>
       </TextButton>
       <TextButton onClick={() => { }} border={true}>

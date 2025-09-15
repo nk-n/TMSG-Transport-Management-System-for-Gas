@@ -1,5 +1,5 @@
 'use client'
-import { DriverCarStatus, Car } from "@/src/types/CarDriverManagement";
+import { DriverCarStatus, Car } from "@/src/types/CarDriver";
 import { FilterIcon, SearchIcon } from "../../icon/Icon";
 import InputBox from "../../utils/InputBox";
 import { useEffect, useState } from "react";
@@ -72,7 +72,7 @@ export default function CarSection({ rawData }: { rawData: Car[] }) {
   }, [filterMap, searchKeyword])
 
   return <>
-    <div className="bg-[var(--primary-second-color)] p-5 gap-5 flex flex-col rounded-2xl">
+    <div className="bg-primary-second p-5 gap-5 flex flex-col rounded-2xl">
       <p>เลือกพนักงานขับรถที่พร้อมทำงาน</p>
       <div className="flex gap-5">
         <InputBox
@@ -84,7 +84,7 @@ export default function CarSection({ rawData }: { rawData: Car[] }) {
             onClick={() => {
               setFilterPopupOpen(!filterPopupOpen)
             }}
-            className="bg-[var(--background)] border-1 border-[var(--neutral-color)] rounded-xl px-4 py-3 cursor-pointer hover:scale-95 transition-all relative">
+            className="bg-background border-1 border-neutral rounded-xl px-4 py-3 cursor-pointer hover:scale-95 transition-all relative">
             <FilterIcon size={24} />
           </button>
           <FilterPopup isOpen={filterPopupOpen} closePopup={() => {
@@ -109,7 +109,7 @@ export default function CarSection({ rawData }: { rawData: Car[] }) {
               setCheckMap({ ...newCheckMap })
             }
           }}
-          className="bg-[var(--background)] border-1 border-[var(--neutral-color)] rounded-xl px-5 py-3 cursor-pointer hover:scale-95 transition-all">เลือกทั้งหมด</button>
+          className="bg-background border-1 border-neutral rounded-xl px-5 py-3 cursor-pointer hover:scale-95 transition-all">เลือกทั้งหมด</button>
       </div>
       {checkMap != undefined ?
         <CarCardList data={filterData} checkMap={checkMap} setCheckMap={(newCheckMap) => {
@@ -118,7 +118,7 @@ export default function CarSection({ rawData }: { rawData: Car[] }) {
         :
         <></>
       }
-      <button className="bg-[var(--primary-color)] text-white rounded-2xl py-3 hover:scale-95 transition-transform cursor-pointer">ยืนยันสถานะรถที่เลือก</button>
+      <button className="bg-primary text-white rounded-2xl py-3 hover:scale-95 transition-transform cursor-pointer">ยืนยันสถานะรถที่เลือก</button>
     </div>
   </>
 }

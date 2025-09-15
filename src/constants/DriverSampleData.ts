@@ -1,4 +1,4 @@
-import { DriverCarStatus, Driver } from "../types/CarDriverManagement";
+import { DriverCarStatus, Driver } from "../types/CarDriver";
 
 export const driverRawData: Driver[] = [
    {

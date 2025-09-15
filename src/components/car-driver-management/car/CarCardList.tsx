@@ -1,4 +1,4 @@
-import { Car, DriverCarStatus } from "@/src/types/CarDriverManagement"
+import { Car, DriverCarStatus } from "@/src/types/CarDriver"
 import CheckBox from "../../utils/CheckBox"
 import clsx from "clsx"
 import CarDriverCard from "../CarDriverCard"
@@ -10,8 +10,8 @@ export default function CarCardList({ data, checkMap, setCheckMap }: { data: Car
         return (
           <CarDriverCard<Car> element={element} checkMap={checkMap} setCheckMap={setCheckMap} key={element.id}>
             <p>{element.id}</p>
-            <p className="text-sm text-[var(--neutral-color)]">{element.licensePlate}</p>
-            <p className="text-sm text-[var(--neutral-color)]">{element.type}</p>
+            <p className="text-sm text-neutral">{element.licensePlate}</p>
+            <p className="text-sm text-neutral">{element.type}</p>
           </CarDriverCard>
         )
       })}

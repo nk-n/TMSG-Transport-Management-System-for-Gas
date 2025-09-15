@@ -12,7 +12,7 @@ export default function LoginPopup() {
     <div className="bg-black/35 fixed top-0 bottom-0 left-0 right-0 flex justify-center items-center">
       <div className="bg-white w-full max-w-[500px] rounded-xl flex flex-col p-6 gap-3">
         <div className="flex flex-col gap-1 items-center">
-          <p className="text-[var(--primary-color)] font-bold text-3xl">เข้าสู่ระบบ</p>
+          <p className="text-primary font-bold text-3xl">เข้าสู่ระบบ</p>
           <p>กรุณากรอกข้อมูลเพื่อเข้าสู่ระบบ</p>
         </div>
         <div className="flex flex-col gap-5 flex-1">
@@ -45,7 +45,7 @@ export default function LoginPopup() {
             </div>
           </div>
         </div>
-        <button className="cursor-pointer bg-[var(--primary-color)] rounded-xl py-3 text-white hover:scale-95 transition-transform mt-8">เข้าสู่ระบบ</button>
+        <button className="cursor-pointer bg-primary rounded-xl py-3 text-white hover:scale-95 transition-transform mt-8">เข้าสู่ระบบ</button>
       </div>
     </div>
   </>

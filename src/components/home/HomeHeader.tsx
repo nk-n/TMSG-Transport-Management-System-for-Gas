@@ -46,18 +46,18 @@ export default function HomeHeader() {
     <div className="flex shadow-md rounded-xl p-8 w-full justify-between bg-white">
       <div>
         <p className="text-3xl font-bold mb-2">TMSG - Transport Management System for Gas</p>
-        <p className="text-[var(--neutral-color)]">ระบบจัดการการขนส่งแก๊ส LPG</p>
+        <p className="text-neutral">ระบบจัดการการขนส่งแก๊ส LPG</p>
       </div>
       <div className="flex gap-4 items-center">
         <button
           onClick={() => {
             setNotificationPopupOpen(true)
           }}
-          className="border-1 border-[var(--neutral-color)] rounded-full h-fit p-3 cursor-pointer relative transition-transform hover:scale-95">
-          <div className=" text-sm bg-[var(--error-color)] text-white flex justify-center items-center rounded-full absolute px-[9px] py-[3px] -top-[10px] -right-[10px]">{data.length}</div>
-          <NotificationIcon size={24} />
+          className="border-1 border-neutral rounded-full h-fit p-3 cursor-pointer relative transition-transform hover:scale-95">
+          <div className=" text-sm bg-error text-white flex justify-center items-center rounded-full absolute px-[9px] py-[3px] -top-[10px] -right-[10px]">{data.length}</div>
+          <NotificationIcon size={24} className="stroke-foreground" />
         </button>
-        <div className="border-1 border-[var(--neutral-color)] rounded-full h-fit px-4 py-3 flex gap-2">
+        <div className="border-1 border-neutral rounded-full h-fit px-4 py-3 flex gap-2">
           <PeopleIcon size={24} />
           <p>เจ้าหน้าที่จัดส่ง นายรักษิต รุ่งรัตนไชย</p>
         </div>

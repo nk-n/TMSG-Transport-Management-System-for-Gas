@@ -3,7 +3,7 @@ import { useState } from "react"
 import { CloseIcon } from "../icon/Icon"
 import CheckBox from "../utils/CheckBox"
 import clsx from "clsx"
-import { DriverCarStatus } from "@/src/types/CarDriverManagement"
+import { DriverCarStatus } from "@/src/types/CarDriver"
 
 export default function FilterPopup({ isOpen, closePopup, filterMap, setFilterMap }:
   {
@@ -12,10 +12,10 @@ export default function FilterPopup({ isOpen, closePopup, filterMap, setFilterMa
     setFilterMap: (newFilterMap: { status: DriverCarStatus, check: boolean }[]) => void
   }) {
   return <>
-    <div className={clsx("transition-all bg-[var(--background)] absolute -left-[100px] -bottom-[220px] border-1 border-[var(--neutral-color)] rounded-xl z-20", {
+    <div className={clsx("transition-all bg-background absolute -left-[100px] -bottom-[220px] border-1 border-neutral rounded-xl z-20", {
       "opacity-0 scale-95": !isOpen
     })}>
-      <div className="flex justify-between items-center p-5 border-b-1 border-b-[var(--neutral-color)]">
+      <div className="flex justify-between items-center p-5 border-b-1 border-b-neutral">
         <p className="font-bold w-[200px]">กรองการค้นหา</p>
         <button
           onClick={() => {
