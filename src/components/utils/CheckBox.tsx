@@ -13,7 +13,7 @@ export default function CheckBox({ iconSize, disable, check, setCheck }: { iconS
         "border-1 border-neutral cursor-pointer": !check && !disable,
         "bg-neutral border-1 border-neutral": disable
       })}>
-      <CheckIcon size={iconSize} />
+      <CheckIcon size={iconSize} className={clsx("stroke-white", { "opacity-0": !check, "opacity-100": check || disable })} />
     </button>
   </>
 }

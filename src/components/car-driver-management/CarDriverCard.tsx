@@ -37,7 +37,7 @@ export default function CarDriverCard<T extends BaseCarDriver>({ element, checkM
         <div className={clsx(" rounded-full px-3 py-1 ml-2 text-sm", {
           "bg-success": element.status == DriverCarStatus.Ready,
           "bg-error": element.status == DriverCarStatus.NotReady,
-          "bg-inprogess": element.status == DriverCarStatus.InProgress,
+          "bg-inprogress": element.status == DriverCarStatus.InProgress,
         })}>
           <p className="text-white">{element.status}</p>
         </div>

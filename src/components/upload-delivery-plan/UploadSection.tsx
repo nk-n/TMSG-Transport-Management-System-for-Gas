@@ -65,7 +65,7 @@ export default function UploadSection({ file, setFile }: UploadSection) {
 
       }
       <div className={clsx("flex justify-center items-center flex-col gap-2 transition-all absolute inset-0  pointer-events-none rounded-xl", {
-        "backdrop-blur-md opacity-100 bg-black/5": dragFile,
+        "backdrop-blur-md opacity-100 bg-foreground/5": dragFile,
         "opacity-0": !dragFile
       })}>
         <ClipIcon size={50} className=" stroke-primary" />

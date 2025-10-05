@@ -13,7 +13,7 @@ export default function NotificationPopup({ data, isOpen, closePopup }: { data: 
   //   document.body.classList.remove("overflow-y-hidden")
   // }
   return <>
-    <div className={clsx(" transition-all bg-black/50 fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center z-50", {
+    <div className={clsx(" transition-all bg-foreground/50 fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center z-50", {
       "opacity-100": isOpen,
       "opacity-0 pointer-events-none": !isOpen
     })}>

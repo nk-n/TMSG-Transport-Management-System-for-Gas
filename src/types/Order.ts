@@ -1,17 +1,11 @@
 import { Car, Driver } from "./CarDriver";
+import { StatusHistory } from "./StatusHistory";
 
 export enum OrderStatus {
   Waiting = "รอรับงาน",
-  InProgress = "ระหว่างการจัดส่ง",
-  Verify = "ตรวจสอบค่าเที่ยว",
+  InProgress = "ระหว่างการจัดส่งสินค้า",
+  Verify = "รออนุมัติ",
   Approve = "อนุมัติ"
-}
-
-export enum DeliveryStatus {
-  Success = "สำเร็จ",
-  Late = "ล่าช้า",
-  InProgress = "กำลังดำเนินการ",
-  Pending = "รอดำเนินการ"
 }
 
 export interface Order {
@@ -20,20 +14,11 @@ export interface Order {
   status: OrderStatus
   orderId: string
   note: string
-  currentLocation: string
-  destination: string
+  destination: Destination
   loadGas: number
   drop: number
   serveGas: number
-  balanceGas: number
-  waitingLoadStatus: DeliveryStatus
-  loadStatus: DeliveryStatus
-  deliveryStatus: DeliveryStatus
-  serveStatus: DeliveryStatus
-  timeWaitingLoad: number
-  timeLoad: number
-  timeDelivery: number
-  timeServe: number
   deadline: Date
   startTime: Date
+  statusHistory: StatusHistory[]
 }

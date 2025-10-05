@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./provider";
 
 const notoSansThai = Noto_Sans_Thai({ subsets: ["thai"], display: "swap", variable: "--font-noto-sans-thai" })
 
@@ -17,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en" >
       <body className="h-full overflow-hidden">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

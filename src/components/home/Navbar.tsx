@@ -1,13 +1,20 @@
+"use client"
 import clsx from "clsx"
 import { MenuListType } from "../../types/ContentSectoin"
+import { useRouter } from "next/navigation"
 
 export default function Navbar({ menuList, currentTab, onTabChange }: { menuList: MenuListType[], currentTab: number, onTabChange: (index: number) => void }) {
+  const router = useRouter()
   return <>
     <div className="bg-neutral-second p-3 flex gap-2 justify-between">
       {menuList.map((element: MenuListType, index: number) => {
         return <button
           onClick={() => {
-            onTabChange(index)
+            if (element.title === "รายงาน") {
+              router.push("/report")
+            } else {
+              onTabChange(index)
+            }
           }}
           key={index} className={clsx("transition-all cursor-pointer flex-1 p-3 rounded-xl", {
             "bg-white": currentTab == index,

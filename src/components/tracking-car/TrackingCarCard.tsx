@@ -1,19 +1,55 @@
-import { DeliveryStatus, Order, OrderStatus } from "@/src/types/Order";
+"use client"
+import { Order, OrderStatus } from "@/src/types/Order";
 import { ArrowHeadDownIcon, CarIcon } from "../icon/Icon";
 import { useState } from "react";
-import DeliveryStatusBar from "./DeliveryStatusBar";
+import DeliveryStatusBar, { DeliveryStatus } from "./DeliveryStatusBar";
 import clsx from "clsx";
+import { Status, StatusHistory } from "@/src/types/StatusHistory";
 
 interface TrackingCarCardProps {
   order: Order
 }
 
+export interface StatusHistoryMap {
+  [key: string]: StatusHistory,
+}
+
 export default function TrackingCarCard({ order }: TrackingCarCardProps) {
   const [extend, setExtend] = useState(false)
+  const [isLate, setIsLate] = useState(false)
+
+  const deliveryStatusLable = ["เริ่มงาน", "รอโหลดสินค้า", "โหลดสินค้า", "เดินทางไปปลายทาง", "ลงสินค้า"]
+  const statusHistoryArray = [Status.Start, Status.Waiting, Status.Load, Status.Travel, Status.Deliver]
+
+
+  const statusHistoryToMap = (): StatusHistoryMap => {
+    const statusHistoryMap: StatusHistoryMap = {}
+    for (const element of order.statusHistory) {
+      statusHistoryMap[element.status] = element
+    }
+    return statusHistoryMap
+  }
+
+  const currentProgresstion = (): string => {
+    if (order.statusHistory.length === 0) return "-"
+    let targetStatusHistory: Status = order.statusHistory[0].status
+    let targetTimeStamp: number = 0
+    for (const element of order.statusHistory) {
+      if (element.timestamp.getTime() > targetTimeStamp) {
+        targetTimeStamp = element.timestamp.getTime()
+        targetStatusHistory = element.status
+      }
+    }
+    return targetStatusHistory
+  }
+
+
   return <>
-    <div className={clsx("border-1 border-neutral rounded-xl p-5 mt-4 flex flex-col gap-4 transition-all duration-300 overflow-hidden", {
+    <div className={clsx("border-1  rounded-xl p-5 mt-4 flex flex-col gap-4 transition-all duration-300 overflow-hidden", {
       "max-h-[358px]": !extend,
-      "max-h-[1000px]": extend
+      "max-h-[1000px]": extend,
+      "border-error border-1": isLate,
+      "border-neutral": !isLate
     })}>
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-5">
@@ -34,14 +70,14 @@ export default function TrackingCarCard({ order }: TrackingCarCardProps) {
       </div>
       <div className="flex">
         <div className="flex-1">
-          <p className="text-neutral">ตำแหน่งปัจจุบัน</p>
-          <p>{order.currentLocation}</p>
+          <p className="text-neutral">สถานะการขนส่งปัจจุบัน</p>
+          {currentProgresstion()}
           <p className="mt-4 text-neutral">Drop</p>
           <p>{order.drop}</p>
         </div>
         <div className="flex-1">
           <p className="text-neutral">ปลายทาง</p>
-          <p>{order.destination}</p>
+          <p>{order.destination.name}</p>
           <p className="mt-4 text-neutral">กิโลกรัมแก๊สที่ลงให้ลูกค้า</p>
           <p>{order.serveGas == 0 ? "-" : order.serveGas}</p>
         </div>
@@ -49,10 +85,10 @@ export default function TrackingCarCard({ order }: TrackingCarCardProps) {
           <p className="text-neutral">ปริมาณแก๊สที่โหลด</p>
           <p>{order.loadGas} กิโลกรัม</p>
           <p className="mt-4 text-neutral">แก๊สเหลือ</p>
-          <p>{order.balanceGas}</p>
+          <p>{order.serveGas === 0 ? "-" : order.loadGas - order.serveGas}</p>
         </div>
       </div>
-      <p>ความคืบหน้า (3/4) จุด</p>
+      <p>ความคืบหน้า ({order.statusHistory.length > 5 ? "5" : order.statusHistory.length}/5) จุด</p>
       <div className="flex justify-between ">
         <p>สถานะการขนส่ง</p>
         <button className="flex gap-2 cursor-pointer rounded-full hover:scale-95 transition-all" onClick={() => {
@@ -67,29 +103,25 @@ export default function TrackingCarCard({ order }: TrackingCarCardProps) {
       {
         order.drop ?
           <div className="flex flex-col gap-4">
-            <DeliveryStatusBar
-              index={1}
-              status={order.waitingLoadStatus}
-              startTime={order.startTime}
-              endTime={new Date(order.startTime.getTime() + (order.timeWaitingLoad * 60 * 1000))}
-            />
-            <DeliveryStatusBar
-              index={2}
-              status={order.loadStatus}
-              startTime={new Date(order.startTime.getTime() + (order.timeWaitingLoad * 60 * 1000))}
-              endTime={new Date(order.startTime.getTime() + (order.timeWaitingLoad * 60 * 1000) + (order.timeLoad * 60 * 1000))}
-            />
-            <DeliveryStatusBar
-              index={3}
-              status={order.deliveryStatus}
-              startTime={new Date(order.startTime.getTime() + (order.timeWaitingLoad * 60 * 1000) + (order.timeLoad * 60 * 1000))}
-              endTime={new Date(order.startTime.getTime() + (order.timeWaitingLoad * 60 * 1000) + (order.timeLoad * 60 * 1000) + (order.timeDelivery * 60 * 1000))}
-            />
-            <DeliveryStatusBar
-              index={4}
-              status={order.serveStatus}
-              startTime={new Date(order.startTime.getTime() + (order.timeWaitingLoad * 60 * 1000) + (order.timeLoad * 60 * 1000) + (order.timeDelivery * 60 * 1000))}
-            />
+            <p></p>
+            {
+              statusHistoryArray.map((element, index) => {
+                return (
+                  <DeliveryStatusBar
+                    key={index}
+                    index={index + 1}
+                    label={deliveryStatusLable[index]}
+                    order={order}
+                    status={element}
+                    statusMap={statusHistoryToMap()}
+                    setIsLate={() => {
+                      setIsLate(true)
+                    }}
+
+                  />
+                )
+              })
+            }
           </div>
           :
           <div>

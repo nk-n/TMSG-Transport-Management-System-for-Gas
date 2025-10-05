@@ -1,48 +1,202 @@
-import { DeliveryStatus, OrderStatus } from "@/src/types/Order";
+"use client"
+import { JSX, useEffect, useState } from "react";
 import { CheckIcon, CloseIcon } from "../icon/Icon";
 import clsx from "clsx";
+import { Status, StatusHistory } from "@/src/types/StatusHistory";
+import { orderRawData } from "@/src/constants/OrderSampleData";
+import { Order } from "@/src/types/Order";
+import { StatusHistoryMap } from "./TrackingCarCard";
 
 interface DeliveryStatusBarProps {
-  status: DeliveryStatus
-  startTime: Date,
-  endTime?: Date
+  label: string
   index: number
-
-
+  status: Status
+  order: Order
+  statusMap: StatusHistoryMap
+  setIsLate: () => void
 }
-export default function DeliveryStatusBar({ status, startTime, endTime, index }: DeliveryStatusBarProps) {
+
+export enum DeliveryStatus {
+  Start = "เริ่มงาน",
+  WaitingLoad = "รอโหลดสินค้า",
+  Load = "โหลดสินค้า",
+  Travel = "เดินทางไปปลายทาง",
+  Deliver = "ส่งสินค้า",
+  Finish = "จัดส่งเรียบร้อย"
+}
+
+
+export default function DeliveryStatusBar({ label, index, status, order, statusMap, setIsLate }: DeliveryStatusBarProps) {
+
+  const findStatusHistoryByStatus = (status: Status): StatusHistory | undefined => {
+    return statusMap[status]
+  }
+
+  useEffect(() => {
+    if (isLate()) {
+      setIsLate()
+    }
+  }, [])
+
+
+  // สถานะของ delivery status bar อันนี้
+  const statusHistory: StatusHistory | undefined = findStatusHistoryByStatus(status)
+
+  const isCurrentProgresstion = (): boolean => {
+    if (statusHistory === undefined) return false
+    const targetTimeStamp = statusHistory?.timestamp
+    for (const element of order.statusHistory) {
+      if (element.timestamp.getTime() > targetTimeStamp?.getTime()) {
+        return false
+      }
+    }
+    return true
+  }
+
+  const getDelivertyStatus = (statusHistory: StatusHistory[]): DeliveryStatus => {
+    switch (statusHistory.length) {
+      case 1:
+        return DeliveryStatus.Start
+      case 2:
+        return DeliveryStatus.WaitingLoad
+      case 3:
+        return DeliveryStatus.Load
+      case 4:
+        return DeliveryStatus.Travel
+      case 5:
+        return DeliveryStatus.Deliver
+      case 6:
+        return DeliveryStatus.Finish
+      default:
+        return DeliveryStatus.Finish
+    }
+  }
+
+  const calculateEndStandardTime = (): Date => {
+    if (statusHistory === undefined) return new Date();
+    switch (statusHistory.status) {
+      case Status.Waiting:
+        return new Date(statusHistory.timestamp.getTime() + (30 * 60 * 1000))
+      case Status.Load:
+      case Status.Deliver:
+        return new Date(statusHistory.timestamp.getTime() + (60 * 60 * 1000))
+      case Status.Travel:
+        return new Date(statusHistory.timestamp.getTime() + (order.destination.timeUsed * 60 * 1000))
+      default:
+        return new Date(statusHistory.timestamp.getTime())
+    }
+  }
+
+  const calculateEndActualTime = (): Date => {
+    if (statusHistory === undefined) return new Date();
+    if (status === Status.Waiting) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Load);
+      if (loadStatusHistory !== undefined) {
+        return new Date(loadStatusHistory.timestamp.getTime());
+      }
+    } else if (status === Status.Load) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Travel);
+      if (loadStatusHistory !== undefined) {
+        return new Date(loadStatusHistory.timestamp.getTime());
+      }
+    } else if (status === Status.Travel) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Deliver);
+      if (loadStatusHistory !== undefined) {
+        return new Date(loadStatusHistory.timestamp.getTime());
+      }
+    } else if (status === Status.Deliver) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Finish);
+      if (loadStatusHistory !== undefined) {
+        return new Date(loadStatusHistory.timestamp.getTime());
+      }
+    }
+    return new Date()
+  }
+
+  const isLate = (): boolean => {
+    if (statusHistory === undefined) {
+      return false
+    }
+    const now: Date = new Date("2025-09-26T14:00:00+07:00")
+    const status = statusHistory.status
+    const endTime: Date = calculateEndStandardTime()
+    if (status === Status.Waiting) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Load);
+      if (loadStatusHistory !== undefined) {
+        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > 30;
+      }
+    } else if (status === Status.Load) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Travel);
+      if (loadStatusHistory !== undefined) {
+        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > 60;
+      }
+    } else if (status === Status.Travel) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Deliver);
+      if (loadStatusHistory !== undefined) {
+        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > order.destination.timeUsed;
+      }
+    } else if (status === Status.Deliver) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Finish);
+      if (loadStatusHistory !== undefined) {
+        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > 60;
+      }
+    }
+    return false;
+  }
+
+  const generateJSXStatus = (): JSX.Element => {
+    if (statusHistory === undefined) {
+      return <>
+        <div className="bg-neutral rounded-full w-[40px] h-[40px] flex justify-center items-center">
+          <p className="text-white font-bold">{index}</p>
+        </div>
+        <p className="">{label}</p>
+      </>
+    }
+    if (isCurrentProgresstion()) {
+      return <>
+        <div className="bg-primary rounded-full w-[40px] h-[40px] flex justify-center items-center">
+          <p className="text-white font-bold">{index}</p>
+        </div>
+        <p className="text-primary">{label}</p>
+      </>
+    }
+    if (isLate()) {
+      return <>
+        <div className="bg-error rounded-full w-[40px] h-[40px] flex justify-center items-center">
+          <CloseIcon size={15} className=" stroke-white stroke-3" />
+        </div>
+        <p className="text-error">{label}</p>
+      </>
+    } else {
+      return <>
+        <div className="bg-success rounded-full w-[40px] h-[40px] flex justify-center items-center">
+          <CheckIcon size={15} className="stroke-white" />
+        </div>
+        <p className="text-success">{label}</p>
+      </>
+    }
+  }
+
+
+
   return <>
     <div className="flex justify-between items-center">
       <div className="flex items-center gap-2">
-        {status == DeliveryStatus.Success ?
-          <div className="bg-success rounded-full w-[40px] h-[40px] flex justify-center items-center">
-            <CheckIcon size={15} />
-          </div>
-          : status == DeliveryStatus.Late ?
-            <div className="bg-error rounded-full w-[40px] h-[40px] flex justify-center items-center">
-              <CloseIcon size={15} className=" stroke-white stroke-3" />
-            </div>
-            : status == DeliveryStatus.InProgress ?
-              <div className="bg-primary rounded-full w-[40px] h-[40px] flex justify-center items-center">
-                <p className="text-white font-bold">{index}</p>
-              </div>
-              :
-              <div className="bg-neutral rounded-full w-[40px] h-[40px] flex justify-center items-center">
-                <p className="text-white font-bold">{index}</p>
-              </div>
-        }
-        <p>รอโหลดสินค้า</p>
+        {generateJSXStatus()}
       </div>
       <p className={clsx(
         "font-bold",
         {
-          "text-success": status === DeliveryStatus.Success,
-          "text-error": status === DeliveryStatus.Late,
+          "text-primary": isCurrentProgresstion(),
+          "text-success": !isLate() && !isCurrentProgresstion(),
+          "text-error": isLate() && !isCurrentProgresstion(),
         }
       )}>
-        {`${startTime.getHours().toString().padStart(2, '0')}:${startTime.getMinutes().toString().padStart(2, '0')}` +
-          (endTime ? ` - ${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}` : '')
-        }
+        {statusHistory ?
+          `${statusHistory.timestamp.getHours().toString().padStart(2, '0')}:${statusHistory?.timestamp.getMinutes().toString().padStart(2, '0')} ${statusHistory.timestamp.getTime() === calculateEndStandardTime().getTime() || isCurrentProgresstion() ? "" : `- ${calculateEndActualTime().getHours().toString().padStart(2, '0')}:${calculateEndActualTime()?.getMinutes().toString().padStart(2, '0')}`}`
+          :
+          ""}
       </p>
     </div>
   </>

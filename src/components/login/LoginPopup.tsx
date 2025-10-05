@@ -9,7 +9,7 @@ export default function LoginPopup() {
   const [password, setPassword] = useState("")
   const [check, setCheck] = useState(false)
   return <>
-    <div className="bg-black/35 fixed top-0 bottom-0 left-0 right-0 flex justify-center items-center">
+    <div className="bg-foreground/35 fixed top-0 bottom-0 left-0 right-0 flex justify-center items-center">
       <div className="bg-white w-full max-w-[500px] rounded-xl flex flex-col p-6 gap-3">
         <div className="flex flex-col gap-1 items-center">
           <p className="text-primary font-bold text-3xl">เข้าสู่ระบบ</p>

@@ -1,13 +1,16 @@
-import { CarType, DriverCarStatus } from "../types/CarDriver";
-import { DeliveryStatus, Order, OrderStatus } from "../types/Order";
+import { CarType, CarWeight, DriverCarStatus } from "../types/CarDriver";
+import { Order, OrderStatus } from "../types/Order";
+import {Status} from "../types/StatusHistory";
 
 export const orderRawData: Order[] = [
   {
     car: {
       id: "PTL.401",
       licensePlate: "กท79-0689",
-      type: CarType.EightTon,
+      type: CarType.SemiTrailer,
       status: DriverCarStatus.Ready,
+      weight: CarWeight.TenTon,
+      isDelete: false
     },
     drivers: [
       {
@@ -15,110 +18,59 @@ export const orderRawData: Order[] = [
         name: "สมชาย ใจดี",
         tel: "081-852-3548",
         status: DriverCarStatus.Ready,
+        isDelete: false
       },
       {
         id: "5",
         name: "สมปอง สุขใจ",
         tel: "081-234-5678",
         status: DriverCarStatus.Ready,
+        isDelete: false
       },
     ],
     status: OrderStatus.InProgress,
     orderId: "45839PTL.221เที่ยว1",
     note: "โหลดไม่เกิน 85% / ชั่งปิดที่คลัง",
-    currentLocation: "สระแก้ว",
-    destination: "โรงบรรจุ สุขสวัสดิ์",
+    destination: {
+    name: "Pattaya Beach",
+    address: "Beach Rd, Bang Lamung District",
+    city: "Pattaya",
+    region: "Chonburi",
+    route: "Beach Road",
+    distance: 3,
+    timeUsed: 10,
+    isDelete: false
+    },
     loadGas: 10000,
     drop: 1,
     serveGas: 0,
-    balanceGas: 10000,
-    waitingLoadStatus: DeliveryStatus.Success,
-    loadStatus: DeliveryStatus.InProgress,
-    deliveryStatus: DeliveryStatus.Pending,
-    serveStatus: DeliveryStatus.Pending,
-    timeWaitingLoad: 30,
-    timeLoad: 45,
-    timeDelivery: 120,
-    timeServe: 60,
     startTime: new Date("2025-09-12T08:00:00Z"),
     deadline: new Date("2025-09-12T14:30:00Z"),
+    statusHistory: [
+  {
+    status: Status.Start,
+    timestamp: new Date("2025-09-25T14:00:00+07:00"), // 08:00 UTC → 15:00 ไทย
   },
   {
-    car: {
-      id: "PTL.402",
-      licensePlate: "กท79-1245",
-      type: CarType.TenTon,
-      status: DriverCarStatus.NotReady,
-      reason: "กำลังซ่อมเครื่องยนต์",
-    },
-    drivers: [
-      {
-        id: "2",
-        name: "มะเขือ เทศ",
-        tel: "081-578-1235",
-        status: DriverCarStatus.NotReady,
-      },
-    ],
-    status: OrderStatus.Waiting,
-    orderId: "45840PTL.222เที่ยว1",
-    note: "ตรวจสอบสภาพรถก่อนเดินทาง",
-    currentLocation: "-",
-    destination: "โรงบรรจุ ปทุมธานี",
-    loadGas: 0,
-    drop: 0,
-    serveGas: 0,
-    balanceGas: 0,
-    waitingLoadStatus: DeliveryStatus.Pending,
-    loadStatus: DeliveryStatus.Pending,
-    deliveryStatus: DeliveryStatus.Pending,
-    serveStatus: DeliveryStatus.Pending,
-    timeWaitingLoad: 0,
-    timeLoad: 0,
-    timeDelivery: 0,
-    timeServe: 0,
-    startTime: new Date("2025-09-13T07:30:00Z"),
-    deadline: new Date("2025-09-13T09:00:00Z"),
+    status: Status.Waiting,
+    timestamp: new Date("2025-09-25T15:00:00+07:00"), // 08:00 UTC → 15:00 ไทย
   },
   {
-    car: {
-      id: "PTL.403",
-      licensePlate: "กท79-5678",
-      type: CarType.Trailer,
-      status: DriverCarStatus.InProgress,
-    },
-    drivers: [
-      {
-        id: "6",
-        name: "สมชาย ดีมาก",
-        tel: "081-987-6543",
-        status: DriverCarStatus.InProgress,
-      },
-      {
-        id: "9",
-        name: "มะเขือ เหลือง",
-        tel: "081-666-9999",
-        status: DriverCarStatus.InProgress,
-        reason: "อยู่ระหว่างฝึกอบรม",
-      },
-    ],
-    status: OrderStatus.InProgress,
-    orderId: "45841PTL.223เที่ยว2",
-    note: "ขนส่งด่วน กรุงเทพฯ → ระยอง",
-    currentLocation: "ชลบุรี",
-    destination: "โรงบรรจุ ระยอง",
-    loadGas: 15000,
-    drop: 2,
-    serveGas: 5000,
-    balanceGas: 10000,
-    waitingLoadStatus: DeliveryStatus.Success,
-    loadStatus: DeliveryStatus.Success,
-    deliveryStatus: DeliveryStatus.InProgress,
-    serveStatus: DeliveryStatus.Pending,
-    timeWaitingLoad: 25,
-    timeLoad: 60,
-    timeDelivery: 180,
-    timeServe: 90,
-    startTime: new Date("2025-09-14T06:30:00Z"),
-    deadline: new Date("2025-09-14T16:00:00Z"),
+    status: Status.Load,
+    timestamp: new Date("2025-09-25T15:30:00+07:00"), // 08:30 UTC → 15:30 ไทย
+  },
+  // {
+  //   status: Status.Travel,
+  //   timestamp: new Date("2025-09-25T16:00:00+07:00"), // 09:00 UTC → 16:00 ไทย
+  // },
+  // {
+  //   status: Status.Deliver,
+  //   timestamp: new Date("2025-09-25T17:00:00+07:00"), // 09:00 UTC → 16:00 ไทย
+  // },
+  // {
+  //   status: Status.Finish,
+  //   timestamp: new Date("2025-09-25T18:00:00+07:00"), // 09:00 UTC → 16:00 ไทย
+  // },
+]
   },
 ];
