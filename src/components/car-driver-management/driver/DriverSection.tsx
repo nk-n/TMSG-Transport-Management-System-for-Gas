@@ -1,14 +1,32 @@
 'use client'
-import { DriverCarStatus, Driver } from "@/src/types/CarDriverManagement";
+import { DriverCarStatus, Driver } from "@/src/types/CarDriver";
 import { FilterIcon, SearchIcon } from "../../icon/Icon";
 import InputBox from "../../utils/InputBox";
-import DriverCardList from "./DriverCardList";
 import { useEffect, useState } from "react";
 import FilterPopup from "../FilterPopup";
+import Table from "../../utils/Table";
+import CheckBox from "../../utils/CheckBox";
+import { useSelector } from "react-redux";
+import { RootState } from "@/src/store/store";
 
-export default function DriverSection({ rawData }: { rawData: Driver[] }) {
-  const [data, setData] = useState<Driver[]>([])
+export default function DriverSection() {
+  const drivers = useSelector((state: RootState) => state.driver.list)
   const [filterData, setFilterData] = useState<Driver[]>([])
+
+  // เก็บ state ของ checkbox แต่ละ Driver Card
+  const [checkMap, setCheckMap] = useState<{ [id: string]: boolean }>()
+
+  useEffect(() => {
+    const initData = () => {
+      setFilterData([...drivers])
+      const newCheckMap: { [id: string]: boolean } = {}
+      drivers.forEach((element) => {
+        newCheckMap[element.id] = false
+      })
+      setCheckMap({ ...newCheckMap })
+    }
+    initData()
+  }, [drivers])
 
   // เก็บ state search keyword
   const [searchKeyword, setSearchKeyword] = useState("")
@@ -16,8 +34,6 @@ export default function DriverSection({ rawData }: { rawData: Driver[] }) {
     setSearchKeyword(e.target.value)
   }
 
-  // เก็บ state ของ checkbox แต่ละ Driver Card
-  const [checkMap, setCheckMap] = useState<{ [id: string]: boolean }>()
 
   // เก็บ state filter ข้อมูลเมื่อกดปุ่ม filter
   const [filterMap, setFilterMap] = useState<{ status: DriverCarStatus, check: boolean }[]>([
@@ -28,22 +44,9 @@ export default function DriverSection({ rawData }: { rawData: Driver[] }) {
   const [filterPopupOpen, setFilterPopupOpen] = useState(false)
 
 
-  useEffect(() => {
-    const fetchData = () => {
-      setData([...rawData])
-      setFilterData([...rawData])
-      const newCheckMap: { [id: string]: boolean } = {}
-      rawData.forEach((element) => {
-        newCheckMap[element.id] = false
-      })
-      setCheckMap({ ...newCheckMap })
-    }
-    fetchData()
-  }, [])
-
   // จัดการเรื่อง การเลือก filter ของ user และการ search ของ user
   useEffect(() => {
-    if (data.length != 0) {
+    if (drivers.length != 0) {
       let filterStatus: DriverCarStatus[] = filterMap.filter((element) => {
         if (element.check) {
           return element.status
@@ -52,7 +55,7 @@ export default function DriverSection({ rawData }: { rawData: Driver[] }) {
         return element.status
       })
 
-      let newFilterData = data.filter((element) => {
+      let newFilterData = drivers.filter((element) => {
         if (filterStatus.includes(element.status)) {
           return element
         }
@@ -70,7 +73,7 @@ export default function DriverSection({ rawData }: { rawData: Driver[] }) {
   }, [filterMap, searchKeyword])
 
   return <>
-    <div className="bg-[var(--primary-second-color)] p-5 gap-5 flex flex-col rounded-2xl">
+    <div className="bg-primary-second p-5 gap-5 flex flex-col rounded-2xl ">
       <p>เลือกพนักงานขับรถที่พร้อมทำงาน</p>
       <div className="flex gap-5">
         <InputBox
@@ -82,7 +85,7 @@ export default function DriverSection({ rawData }: { rawData: Driver[] }) {
             onClick={() => {
               setFilterPopupOpen(!filterPopupOpen)
             }}
-            className="bg-[var(--background)] border-1 border-[var(--neutral-color)] rounded-xl px-4 py-3 cursor-pointer hover:scale-95 transition-all relative">
+            className="bg-background border-1 border-neutral rounded-xl px-4 py-3 cursor-pointer hover:scale-95 transition-all relative">
             <FilterIcon size={24} />
           </button>
           <FilterPopup isOpen={filterPopupOpen} closePopup={() => {
@@ -93,30 +96,67 @@ export default function DriverSection({ rawData }: { rawData: Driver[] }) {
         </div>
         <button
           onClick={() => {
-            let idFilterData: string[] = filterData.map((element) => {
-              return element.id
-            })
-            if (checkMap != undefined) {
-              let checkMapKeys = Object.keys(checkMap)
-              let newCheckMap = checkMap
-              checkMapKeys.forEach((element) => {
-                if (idFilterData.includes(element)) {
-                  return newCheckMap[element] = true
-                }
-              })
-              setCheckMap({ ...newCheckMap })
-            }
           }}
-          className="bg-[var(--background)] border-1 border-[var(--neutral-color)] rounded-xl px-5 py-3 cursor-pointer hover:scale-95 transition-all">เลือกทั้งหมด</button>
+          className="bg-background border-1 border-neutral rounded-xl px-5 py-3 cursor-pointer hover:scale-95 transition-all">ยืนยันสถานะพนักงานขับรถที่เลือก</button>
       </div>
-      {checkMap != undefined ?
+      <Table
+        haveCheck={true}
+        columnName={["ชื่อ", "สถานะ", "เบอร์โทร", "หมายเหตุ"]}
+        checkMap={checkMap}
+        setCheckMap={(newCheckMap: { [id: string]: boolean }) => {
+          setCheckMap({ ...newCheckMap })
+        }}
+        idData={
+          filterData.map((element) => {
+            return element.id
+          })
+        }
+      >
+        {filterData.map((element, index) => {
+          return (
+            <tr className="hover:bg-gray-50 border-t border-gray-300" key={index}>
+              <td className="px-4 py-4 text-center">
+                <CheckBox disable={element.status == DriverCarStatus.InProgress} iconSize={18}
+                  check={checkMap == undefined ? false : checkMap[element.id]}
+                  setCheck={() => {
+                    if (checkMap != undefined) {
+                      let newCheckMap: { [id: string]: boolean } = checkMap
+                      newCheckMap[element.id] = !checkMap[element.id]
+                      setCheckMap({ ...newCheckMap })
+                    }
+                  }} /></td>
+              <td className="px-4 py-4 text-left w-[20%]">{element.name}</td>
+              <td className="px-4 py-4 text-left">{
+                element.status == DriverCarStatus.Ready ?
+                  <div className="bg-success-second rounded-full py-2 px-4 w-fit border-1 border-success">
+                    <p className="text-success text-sm">{DriverCarStatus.Ready}</p>
+                  </div>
+                  :
+                  element.status == DriverCarStatus.NotReady ?
+                    <div className="bg-error-second rounded-full py-2 px-4 w-fit border-error border-1">
+                      <p className="text-error text-sm">{DriverCarStatus.NotReady}</p>
+                    </div>
+                    :
+                    element.status == DriverCarStatus.InProgress ?
+                      <div className="bg-inprogress-second rounded-full py-2 px-4 w-fit border-1 border-inprogress">
+                        <p className="text-inprogress text-sm">{DriverCarStatus.InProgress}</p>
+                      </div>
+                      : <></>
+              }</td>
+              <td className="px-4 py-4 text-left">{element.tel}</td>
+              <td className="px-4 py-4 text-left w-[40%] text-wrap">{element.reason ?? "-"}</td>
+            </tr>
+          )
+        })}
+      </Table>
+      {/* {checkMap != undefined ?
         <DriverCardList data={filterData} checkMap={checkMap} setCheckMap={(newCheckMap) => {
           setCheckMap(newCheckMap)
         }} />
         :
         <></>
-      }
-      <button className="bg-[var(--primary-color)] text-white rounded-2xl py-3 hover:scale-95 transition-transform cursor-pointer">ยืนยันสถานะคนขับที่เลือก</button>
-    </div>
+      } */}
+      {/* <button className="bg-primary text-white rounded-2xl py-3 hover:scale-95 transition-transform cursor-pointer">ยืนยันสถานะคนขับที่เลือก</button> */}
+    </div >
   </>
 }

@@ -9,11 +9,11 @@ export default function CheckBox({ iconSize, disable, check, setCheck }: { iconS
       onClick={() => {
         setCheck()
       }} className={clsx(`transition-colors rounded  p-1`, {
-        "bg-[var(--primary-color)] border-1 border-[var(--primary-color)] cursor-pointer ": check && !disable,
-        "border-1 border-[var(--neutral-color)] cursor-pointer": !check && !disable,
-        "bg-[var(--neutral-color)] border-1 border-[var(--neutral-color)]": disable
+        "bg-primary border-1 border-primary cursor-pointer ": check && !disable,
+        "border-1 border-neutral cursor-pointer": !check && !disable,
+        "bg-neutral border-1 border-neutral": disable
       })}>
-      <CheckIcon size={iconSize} />
+      <CheckIcon size={iconSize} className={clsx("stroke-white", { "opacity-0": !check, "opacity-100": check || disable })} />
     </button>
   </>
 }
