@@ -1,9 +1,10 @@
 import { Car, Driver } from "./CarDriver";
+import { Destination } from "./Destination";
 import { StatusHistory } from "./StatusHistory";
 
 export enum OrderStatus {
   Waiting = "รอรับงาน",
-  InProgress = "ระหว่างการจัดส่งสินค้า",
+  InProgress = "ระหว่างจัดส่งสินค้า",
   Verify = "รออนุมัติ",
   Approve = "อนุมัติ"
 }

@@ -21,7 +21,7 @@ export default function DriverSectionMetadata() {
       setFilterData([...drivers])
       const newCheckMap: { [id: string]: boolean } = {}
       drivers.forEach((element) => {
-        newCheckMap[element.id] = false
+        newCheckMap[element.tel] = false
       })
       setCheckMap({ ...newCheckMap })
     }
@@ -71,7 +71,7 @@ export default function DriverSectionMetadata() {
         }}
         idData={
           filterData.map((element) => {
-            return element.id
+            return element.tel
           })
         }
       >
@@ -80,11 +80,11 @@ export default function DriverSectionMetadata() {
             <tr className="hover:bg-gray-50 border-t border-gray-300" key={index}>
               <td className="px-4 py-4 text-center">
                 <CheckBox disable={false} iconSize={18}
-                  check={checkMap == undefined ? false : checkMap[element.id]}
+                  check={checkMap == undefined ? false : checkMap[element.tel]}
                   setCheck={() => {
                     if (checkMap != undefined) {
                       let newCheckMap: { [id: string]: boolean } = checkMap
-                      newCheckMap[element.id] = !checkMap[element.id]
+                      newCheckMap[element.tel] = !checkMap[element.tel]
                       setCheckMap({ ...newCheckMap })
                     }
                   }} /></td>

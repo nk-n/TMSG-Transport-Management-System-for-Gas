@@ -21,7 +21,7 @@ export default function DriverSection() {
       setFilterData([...drivers])
       const newCheckMap: { [id: string]: boolean } = {}
       drivers.forEach((element) => {
-        newCheckMap[element.id] = false
+        newCheckMap[element.name] = false
       })
       setCheckMap({ ...newCheckMap })
     }
@@ -96,6 +96,7 @@ export default function DriverSection() {
         </div>
         <button
           onClick={() => {
+            console.log(checkMap)
           }}
           className="bg-background border-1 border-neutral rounded-xl px-5 py-3 cursor-pointer hover:scale-95 transition-all">ยืนยันสถานะพนักงานขับรถที่เลือก</button>
       </div>
@@ -108,7 +109,7 @@ export default function DriverSection() {
         }}
         idData={
           filterData.map((element) => {
-            return element.id
+            return element.name
           })
         }
       >
@@ -117,11 +118,11 @@ export default function DriverSection() {
             <tr className="hover:bg-gray-50 border-t border-gray-300" key={index}>
               <td className="px-4 py-4 text-center">
                 <CheckBox disable={element.status == DriverCarStatus.InProgress} iconSize={18}
-                  check={checkMap == undefined ? false : checkMap[element.id]}
+                  check={checkMap == undefined ? false : checkMap[element.name]}
                   setCheck={() => {
                     if (checkMap != undefined) {
                       let newCheckMap: { [id: string]: boolean } = checkMap
-                      newCheckMap[element.id] = !checkMap[element.id]
+                      newCheckMap[element.name] = !checkMap[element.name]
                       setCheckMap({ ...newCheckMap })
                     }
                   }} /></td>
@@ -144,7 +145,7 @@ export default function DriverSection() {
                       : <></>
               }</td>
               <td className="px-4 py-4 text-left">{element.tel}</td>
-              <td className="px-4 py-4 text-left w-[40%] text-wrap">{element.reason ?? "-"}</td>
+              <td className="px-4 py-4 text-left w-[40%] text-wrap">{element.note ?? "-"}</td>
             </tr>
           )
         })}

@@ -7,7 +7,14 @@ import clsx from "clsx";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/src/store/store";
 import { setCars } from "@/src/feature/car/carSlice";
-import { Car, toCar } from "@/src/types/CarDriver";
+import { Car, Driver, toCar, toDriver } from "@/src/types/CarDriver";
+import { apiClient } from "@/src/services/apiClient";
+import { CarPostBody, toCarPostBody } from "@/src/types/post-body/CarPostBody";
+import { DriverPostBody, toDriverPostBody } from "@/src/types/post-body/DriverPostBody";
+import { setDriver } from "@/src/feature/driver/driverSlice";
+import { DestinationPostBody, toDestinationPostBody } from "@/src/types/post-body/DestinationPostBody";
+import { Destination, toDestination } from "@/src/types/Destination";
+import { setDestinations } from "@/src/feature/destination/destinationSlice";
 
 export interface RowData {
   [key: string]: string;
@@ -16,13 +23,13 @@ export interface RowData {
 interface UploadMetadataPopupProps {
   isPopupOpen: boolean
   closePopup: () => void
+  setErrorDialog: (bool: boolean) => void
+  setSuccessDialog: (bool: boolean) => void
+  setError: (text: string) => void
 }
 
-export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadMetadataPopupProps) {
+export default function UploadMetadataPopup({ isPopupOpen, closePopup, setErrorDialog, setSuccessDialog, setError }: UploadMetadataPopupProps) {
   const dispatch = useDispatch<AppDispatch>()
-  const [successDialog, setSuccessDialog] = useState(false)
-  const [errorDialog, setErrorDialog] = useState(false)
-  const [error, setError] = useState("")
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [file, setFile] = useState<{ car: File | null, driver: File | null, destination: File | null }>
     ({ car: null, driver: null, destination: null })
@@ -61,6 +68,8 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
     }, 5000)
   }
 
+
+
   const validateFileType = (file: File) => {
     if (
       file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" && // .xlsx
@@ -71,8 +80,10 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
   }
 
   const validateColumn = (jsonData: RowData[], columnName: string[]) => {
+    console.log(jsonData)
     if (jsonData.length != 0 && jsonData != null && jsonData[0] != null) {
       for (const element of Object.keys(jsonData[0])) {
+        console.log(element)
         if (!columnName.includes(element)) {
           throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
         }
@@ -91,9 +102,13 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
         const sheetName = workbook.SheetNames[0];
         const sheet = workbook.Sheets[sheetName];
 
-        const jsonData: RowData[] = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+        const jsonData: RowData[] = XLSX.utils.sheet_to_json(sheet, { defval: "" })
+        const cleaned = jsonData.map(row => {
+          const { __EMPTY, __rowNum__, ...rest } = row;
+          return rest;
+        });
 
-        resolve(jsonData)
+        resolve(cleaned)
       };
       reader.onerror = () => reject(new Error("File read error"))
       reader.readAsBinaryString(file);
@@ -123,7 +138,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
     event.target.value = "";
   }
   const handleDriverFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const driverColumn = ["ชื่อ-สกุล", "เบอร์ติดต่อ", "สถานะพนักงาน"]
+    const driverColumn = ["ชื่อ-สกุล", "เบอร์ติดต่อ"]
     try {
       if (event.target.files != null) {
         file.driver = event.target.files[0]
@@ -165,13 +180,66 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
     event.target.value = "";
   }
 
+  const uploadCarData = async (data: CarPostBody[]) => {
+    try {
+      const res = await apiClient.post("/metadata/cars", data)
+      showDialogSuccess()
+    } catch (err: any) {
+      setError(err.message)
+      showDialogError()
+    }
+  }
+
+  const uploadDriverData = async (data: DriverPostBody[]) => {
+    try {
+      await apiClient.post("/metadata/drivers", data)
+      showDialogSuccess()
+    } catch (err: any) {
+      setError(err.message)
+      showDialogError()
+    }
+  }
+
+  const uploadDestinationData = async (data: DestinationPostBody[]) => {
+    try {
+      await apiClient.post("/metadata/destinations", data)
+      showDialogSuccess()
+    } catch (err: any) {
+      setError(err.message)
+      showDialogError()
+    }
+  }
+
   const uploadData = () => {
     if (datas.car != null) {
+      let newCarsPostBody: CarPostBody[] = datas.car.map((element) => {
+        return toCarPostBody(element)
+      })
       let newCars: Car[] = datas.car.map((element) => {
         return toCar(element)
       })
-      console.log(newCars)
+      uploadCarData(newCarsPostBody)
       dispatch(setCars(newCars))
+    }
+    if (datas.driver != null) {
+      let newDriversPostBody: DriverPostBody[] = datas.driver.map((element) => {
+        return toDriverPostBody(element)
+      })
+      let newDrivers: Driver[] = datas.driver.map((element) => {
+        return toDriver(element)
+      })
+      uploadDriverData(newDriversPostBody)
+      dispatch(setDriver(newDrivers))
+    }
+    if (datas.destination != null) {
+      let newDestinationPostBody: DestinationPostBody[] = datas.destination.map((element) => {
+        return toDestinationPostBody(element)
+      })
+      let newDestinations: Destination[] = datas.destination.map((element) => {
+        return toDestination(element)
+      })
+      uploadDestinationData(newDestinationPostBody)
+      dispatch(setDestinations(newDestinations))
     }
     closePopup()
   }
@@ -180,24 +248,6 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
     <div className={clsx("fixed bg-foreground/25 inset-0 flex justify-center items-center z-10 transition-all", {
       "opacity-0 pointer-events-none": !isPopupOpen
     })}>
-      <div className={clsx("transition-all fixed bg-white right-5 bottom-5 flex gap-3 items-center p-3 rounded-xl shadow-xl z-50", {
-        "translate-y-28": !errorDialog,
-        "translate-y-0": errorDialog,
-      })}>
-        <div className="rounded-full bg-error w-fit p-3">
-          <CloseIcon size={16} className="stroke-white stroke-3" />
-        </div>
-        <p>{error}</p>
-      </div>
-      <div className={clsx("transition-all fixed bg-white right-5 bottom-5 flex gap-3 items-center p-3 rounded-xl shadow-xl", {
-        "translate-y-28": !successDialog,
-        "translate-y-0": successDialog
-      })}>
-        <div className="rounded-full bg-success w-fit p-3">
-          <CheckIcon size={20} className="stroke-white" />
-        </div>
-        <p>นำเข้าข้อมูลสำเร็จ</p>
-      </div>
       <div className={clsx("transition-all bg-background rounded-xl p-10 flex flex-col items-center max-h-[700px] overflow-y-scroll overflow-hidden scrollbar-hide gap-4 relative", {
         "scale-90": !isPopupOpen
       })}>
