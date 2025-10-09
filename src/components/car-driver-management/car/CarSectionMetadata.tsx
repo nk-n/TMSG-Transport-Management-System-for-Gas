@@ -9,7 +9,6 @@ import CheckBox from "../../utils/CheckBox";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/src/store/store";
 import { setCars } from "@/src/feature/car/carSlice";
-import { carRawData } from "@/src/constants/CarSampleData";
 
 export default function CarSectionMetadata() {
   const cars = useSelector((state: RootState) => state.car.list)
@@ -21,10 +20,9 @@ export default function CarSectionMetadata() {
 
   useEffect(() => {
     const initData = () => {
-      dispatch(setCars(carRawData))
-      setFilterData([...carRawData])
+      setFilterData([...cars])
       const newCheckMap: { [id: string]: boolean } = {}
-      carRawData.forEach((element) => {
+      cars.forEach((element) => {
         newCheckMap[element.id] = false
       })
       setCheckMap({ ...newCheckMap })
@@ -44,7 +42,7 @@ export default function CarSectionMetadata() {
       let newFilterData = cars
       if (searchKeyword.trim() != "") {
         newFilterData = newFilterData.filter((element) => {
-          if (element.id.trim().includes(searchKeyword) || element.weight.replaceAll(" ", "").includes(searchKeyword.replaceAll(" ", "")) || element.licensePlate.trim().includes(searchKeyword) || element.type.trim().includes(searchKeyword)) {
+          if (element.id.trim().includes(searchKeyword) || element.weight.replaceAll(" ", "").includes(searchKeyword.replaceAll(" ", "")) || element.license.trim().includes(searchKeyword) || element.type.trim().includes(searchKeyword)) {
             return element
           }
         })
@@ -93,7 +91,7 @@ export default function CarSectionMetadata() {
                     }
                   }} /></td>
               <td className="px-4 py-4 text-left w-[20%]">{element.id}</td>
-              <td className="px-4 py-4 text-left">{element.licensePlate}</td>
+              <td className="px-4 py-4 text-left">{element.license}</td>
               <td className="px-4 py-4 text-left w-[20%]">{element.weight}</td>
               <td className="px-4 py-4 text-left">{element.type}</td>
             </tr>

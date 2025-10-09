@@ -9,7 +9,7 @@ import CheckBox from "../../utils/CheckBox";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/src/store/store";
 import { setDestinations } from "@/src/feature/destination/destinationSlice";
-import { destinationRawData } from "@/src/constants/DestinationSampleData";
+import { Destination } from "@/src/types/Destination";
 
 export default function DestinationSectionMetadata() {
   const destinations = useSelector((state: RootState) => state.destination.list)
@@ -20,10 +20,9 @@ export default function DestinationSectionMetadata() {
 
   useEffect(() => {
     const initData = () => {
-      dispatch(setDestinations(destinationRawData))
-      setFilterData([...destinationRawData])
+      setFilterData([...destinations])
       const newCheckMap: { [address: string]: boolean } = {}
-      destinationRawData.forEach((element) => {
+      destinations.forEach((element) => {
         newCheckMap[element.address] = false
       })
       setCheckMap({ ...newCheckMap })

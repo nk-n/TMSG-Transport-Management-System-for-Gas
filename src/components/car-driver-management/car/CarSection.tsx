@@ -6,11 +6,15 @@ import { useEffect, useState } from "react";
 import FilterPopup from "../FilterPopup";
 import Table from "../../utils/Table";
 import CheckBox from "../../utils/CheckBox";
-import { useSelector } from "react-redux";
-import { RootState } from "@/src/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/src/store/store";
+import axios from "axios";
+import { apiClient } from "@/src/services/apiClient";
+import { setCars } from "@/src/feature/car/carSlice";
 
 export default function CarSection() {
   const cars = useSelector((state: RootState) => state.car.list)
+  const dispatch = useDispatch<AppDispatch>()
   const [filterData, setFilterData] = useState<Car[]>([])
 
   const [checkMap, setCheckMap] = useState<{ [id: string]: boolean }>()
@@ -63,10 +67,10 @@ export default function CarSection() {
       if (searchKeyword.trim() != "") {
         newFilterData = newFilterData.filter((element) => {
           if (
-            element.licensePlate.includes(searchKeyword) ||
+            element.license.includes(searchKeyword) ||
             element.type.includes(searchKeyword) ||
             element.weight.replaceAll(" ", "").includes(searchKeyword.replaceAll(" ", "")) ||
-            element.reason?.includes(searchKeyword)
+            element.note?.includes(searchKeyword)
           ) {
             return element
           }
@@ -75,6 +79,35 @@ export default function CarSection() {
       setFilterData([...newFilterData])
     }
   }, [filterMap, searchKeyword])
+
+  const getCheckCarID = (): Car[] => {
+    const carID: string[] = Object.entries(checkMap ?? {})
+      .filter(([key, value]) => value)
+      .map(([key]) => key);
+    const newCars: Car[] = cars.map((element) => {
+      if (carID.includes(element.id)) {
+        return { ...element, status: DriverCarStatus.Ready }
+      }
+      return { ...element, status: DriverCarStatus.NotReady }
+    })
+    dispatch(setCars(newCars))
+    return newCars
+  }
+
+  const updateStatus = async () => {
+    try {
+      const body: { status: DriverCarStatus, available: boolean, id: string }[] = getCheckCarID().map((element) => {
+        return {
+          status: element.status,
+          available: element.available,
+          id: element.id
+        }
+      })
+      await apiClient.put("/metadata/car", body)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
   return <>
     <div className="bg-primary-second p-5 gap-5 flex flex-col rounded-2xl ">
@@ -100,6 +133,7 @@ export default function CarSection() {
         </div>
         <button
           onClick={() => {
+            updateStatus()
           }}
           className="bg-background border-1 border-neutral rounded-xl px-5 py-3 cursor-pointer hover:scale-95 transition-all">ยืนยันสถานะรถขนส่งที่เลือก</button>
       </div>
@@ -147,10 +181,10 @@ export default function CarSection() {
                       </div>
                       : <></>
               }</td>
-              <td className="px-4 py-4 text-left">{element.licensePlate}</td>
+              <td className="px-4 py-4 text-left">{element.license}</td>
               <td className="px-4 py-4 text-left">{element.type}</td>
               <td className="px-4 py-4 text-left">{element.weight}</td>
-              <td className="px-4 py-4 text-left w-[40%] text-wrap">{element.reason ?? "-"}</td>
+              <td className="px-4 py-4 text-left w-[40%] text-wrap">{element.note ?? "-"}</td>
             </tr>
           )
         })}
