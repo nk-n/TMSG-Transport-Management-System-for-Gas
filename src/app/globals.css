@@ -24,7 +24,7 @@
 
 @layer utilities {
   .button-effect {
-    @apply hover:scale-95 transition-all active:scale-100;
+    @apply hover:scale-95 transition-all active:scale-100 cursor-pointer;
   }
 }
 

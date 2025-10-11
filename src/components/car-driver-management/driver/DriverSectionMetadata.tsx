@@ -6,15 +6,40 @@ import { useEffect, useState } from "react";
 import FilterPopup from "../FilterPopup";
 import Table from "../../utils/Table";
 import CheckBox from "../../utils/CheckBox";
-import { useSelector } from "react-redux";
-import { RootState } from "@/src/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/src/store/store";
+import { removeDriver, setDriver } from "@/src/feature/driver/driverSlice";
+import { apiClient } from "@/src/services/apiClient";
+import ConfirmmationPopup from "../../utils/ConfirmationPopup";
 
 export default function DriverSectionMetadata() {
   const drivers = useSelector((state: RootState) => state.driver.list)
   const [filterData, setFilterData] = useState<Driver[]>([])
+  const dispatch = useDispatch<AppDispatch>()
+  const [confirmPopupIsOpen, setConfirmPopupIsOpen] = useState(false)
 
   // เก็บ state ของ checkbox แต่ละ Driver Card
   const [checkMap, setCheckMap] = useState<{ [id: string]: boolean }>()
+
+  const deleteTarget = () => {
+    const idSelect: string[] = Object.entries(checkMap ?? {}).filter((value, key) => {
+      if (value[1]) {
+        return value
+      }
+    }).map((element) => {
+      return element[0]
+    })
+
+    for (const driver of drivers) {
+      if (idSelect.includes(driver.tel)) {
+        dispatch(removeDriver(driver.tel))
+      }
+    }
+
+    for (const id of idSelect) {
+      apiClient.put(`/metadata/driver/delete/${id}`)
+    }
+  }
 
   useEffect(() => {
     const initData = () => {
@@ -51,6 +76,15 @@ export default function DriverSectionMetadata() {
 
   return <>
     <div className="bg-primary-second p-5 gap-5 flex flex-col rounded-2xl ">
+      <ConfirmmationPopup
+        isPopupOpen={confirmPopupIsOpen}
+        closePopup={() => {
+          setConfirmPopupIsOpen(false)
+        }}
+        deleteData={() => {
+          deleteTarget()
+        }}
+      />
       <p>ข้อมูลพนักงานขับรถ</p>
       <div className="flex gap-5">
         <InputBox
@@ -59,12 +93,13 @@ export default function DriverSectionMetadata() {
           controller={{ value: searchKeyword, handdleChange: handdleSearchKeyword }} />
         <button
           onClick={() => {
+            setConfirmPopupIsOpen(true)
           }}
-          className="bg-background border-1 border-neutral rounded-xl px-5 py-3 cursor-pointer hover:scale-95 transition-all">ลบพนักงานขับรถที่เลือก</button>
+          className="bg-background border-1 border-neutral rounded-xl px-5 py-3 cursor-pointer button-effect">ลบพนักงานขับรถที่เลือก</button>
       </div>
       <Table
-        haveCheck={true}
-        columnName={["ชื่อ", "เบอร์โทร"]}
+        haveCheck={false}
+        columnName={["", "ชื่อ", "เบอร์โทร"]}
         checkMap={checkMap}
         setCheckMap={(newCheckMap: { [id: string]: boolean }) => {
           setCheckMap({ ...newCheckMap })
@@ -76,22 +111,24 @@ export default function DriverSectionMetadata() {
         }
       >
         {filterData.map((element, index) => {
-          return (
-            <tr className="hover:bg-gray-50 border-t border-gray-300" key={index}>
-              <td className="px-4 py-4 text-center">
-                <CheckBox disable={false} iconSize={18}
-                  check={checkMap == undefined ? false : checkMap[element.tel]}
-                  setCheck={() => {
-                    if (checkMap != undefined) {
-                      let newCheckMap: { [id: string]: boolean } = checkMap
-                      newCheckMap[element.tel] = !checkMap[element.tel]
-                      setCheckMap({ ...newCheckMap })
-                    }
-                  }} /></td>
-              <td className="px-4 py-4 text-left w-[20%]">{element.name}</td>
-              <td className="px-4 py-4 text-left">{element.tel}</td>
-            </tr>
-          )
+          if (element.available) {
+            return (
+              <tr className="hover:bg-gray-50 border-t border-gray-300" key={index}>
+                <td className="px-4 py-4 text-center">
+                  <CheckBox disable={false} iconSize={18}
+                    check={checkMap == undefined ? false : checkMap[element.tel]}
+                    setCheck={() => {
+                      if (checkMap != undefined) {
+                        let newCheckMap: { [id: string]: boolean } = checkMap
+                        newCheckMap[element.tel] = !checkMap[element.tel]
+                        setCheckMap({ ...newCheckMap })
+                      }
+                    }} /></td>
+                <td className="px-4 py-4 text-left w-[20%]">{element.name}</td>
+                <td className="px-4 py-4 text-left">{element.tel}</td>
+              </tr>
+            )
+          }
         })}
       </Table>
       {/* {checkMap != undefined ?

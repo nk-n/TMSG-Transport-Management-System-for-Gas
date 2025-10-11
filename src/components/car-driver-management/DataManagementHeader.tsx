@@ -11,24 +11,35 @@ import { Destination } from "@/src/types/Destination";
 
 interface CarDriverManagementHeaderProps {
   currentTab: number
-  totalCars: number
-  totalDrivers: number
-  totalDestinations: number
-  totalReadyForWorkCar: number
-  totalReadyForWorkDriver: number
 }
 export default function CarDriverManagementHeader({
   currentTab,
-  totalCars,
-  totalDrivers,
-  totalDestinations,
-  totalReadyForWorkCar,
-  totalReadyForWorkDriver,
 }: CarDriverManagementHeaderProps) {
   const [uploadMetadataPopup, setUploadMetadataPopup] = useState(false)
   const [successDialog, setSuccessDialog] = useState(false)
   const [errorDialog, setErrorDialog] = useState(false)
   const [error, setError] = useState("")
+  const cars = useSelector((state: RootState) => state.car.list)
+  const drivers = useSelector((state: RootState) => state.driver.list)
+  const destinations = useSelector((state: RootState) => state.destination.list)
+
+  const filterReadyForWork = (data: Car[] | Driver[]) => {
+    const newData = data.filter((element) => {
+      if (element.status === DriverCarStatus.Ready && element.available === true) {
+        return element
+      }
+    })
+    return newData
+  }
+
+  const filterForAvailable = (data: Car[] | Driver[] | Destination[]) => {
+    const newData = data.filter((element) => {
+      if (element.available === true) {
+        return element
+      }
+    })
+    return newData
+  }
 
   return <>
     <div className="flex flex-col gap-10">
@@ -83,26 +94,26 @@ export default function CarDriverManagementHeader({
         <div className="flex gap-4 justify-center">
           <div className="flex flex-col items-center border-1 border-neutral rounded-xl px-20 py-5 gap-3">
             <p className="">จำนวนรถขนส่งทั้งหมด</p>
-            <p className="text-primary text-4xl font-bold">{totalCars}</p>
+            <p className="text-primary text-4xl font-bold">{filterForAvailable(cars).length}</p>
           </div>
           <div className="flex flex-col items-center border-1 border-neutral rounded-xl px-20 py-5 gap-3">
             <p className="">จำนวนพนักงานขับรถทั้งหมด</p>
-            <p className="text-primary text-4xl font-bold">{totalDrivers}</p>
+            <p className="text-primary text-4xl font-bold">{filterForAvailable(drivers).length}</p>
           </div>
           <div className="flex flex-col items-center border-1 border-neutral rounded-xl px-20 py-5 gap-3">
             <p className="">จำนวนสถานที่จัดส่งปลายทางทั้งหมด</p>
-            <p className="text-primary text-4xl font-bold">{totalDestinations}</p>
+            <p className="text-primary text-4xl font-bold">{filterForAvailable(destinations).length}</p>
           </div>
         </div>
         :
         <div className="flex gap-4 justify-center">
           <div className="flex flex-col items-center border-1 border-neutral rounded-xl px-20 py-5 gap-3">
             <p className="">จำนวนรถขนส่งพร้อมใช้งานทั้งหมด</p>
-            <p className="text-primary text-4xl font-bold">{totalReadyForWorkCar}</p>
+            <p className="text-primary text-4xl font-bold">{filterReadyForWork(cars).length}</p>
           </div>
           <div className="flex flex-col items-center border-1 border-neutral rounded-xl px-20 py-5 gap-3">
             <p className="">จำนวนพนักงานขับรถพร้อมทำงานทั้งหมด</p>
-            <p className="text-primary text-4xl font-bold">{totalReadyForWorkDriver}</p>
+            <p className="text-primary text-4xl font-bold">{filterReadyForWork(drivers).length}</p>
           </div>
         </div>
       }
