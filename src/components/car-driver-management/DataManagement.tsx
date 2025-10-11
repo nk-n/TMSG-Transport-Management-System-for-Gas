@@ -55,7 +55,6 @@ export default function CarDriverManagement() {
       ...prev,
       car: filterReadyForWork(cars).length
     }))
-    console.log(totalAmount)
   }
 
   const fetchDriverData = async () => {
@@ -80,7 +79,6 @@ export default function CarDriverManagement() {
       ...prev,
       driver: filterReadyForWork(drivers).length
     }))
-    console.log({ car: totalAmount.car, driver: drivers.length, destination: totalAmount.destination })
   }
 
   const fetchDestinationData = async () => {
@@ -102,7 +100,6 @@ export default function CarDriverManagement() {
       ...prev,
       destination: destinations.length
     }))
-    console.log(totalAmount)
   }
 
   useEffect(() => {

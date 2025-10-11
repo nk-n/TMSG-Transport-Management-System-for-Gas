@@ -4,7 +4,7 @@ import CarSection from "./car/CarSection";
 
 export default function CarDriverManagementSection() {
   return <>
-    <DriverSection />
     <CarSection />
+    <DriverSection />
   </>
 }

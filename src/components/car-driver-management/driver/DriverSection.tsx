@@ -6,11 +6,15 @@ import { useEffect, useState } from "react";
 import FilterPopup from "../FilterPopup";
 import Table from "../../utils/Table";
 import CheckBox from "../../utils/CheckBox";
-import { useSelector } from "react-redux";
-import { RootState } from "@/src/store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/src/store/store";
+import { setDriver } from "@/src/feature/driver/driverSlice";
+import { apiClient } from "@/src/services/apiClient";
+import UpdateNoteColumn from "../../utils/NoteColumn";
 
 export default function DriverSection() {
   const drivers = useSelector((state: RootState) => state.driver.list)
+  const dispatch = useDispatch<AppDispatch>()
   const [filterData, setFilterData] = useState<Driver[]>([])
 
   // เก็บ state ของ checkbox แต่ละ Driver Card
@@ -21,7 +25,7 @@ export default function DriverSection() {
       setFilterData([...drivers])
       const newCheckMap: { [id: string]: boolean } = {}
       drivers.forEach((element) => {
-        newCheckMap[element.name] = false
+        newCheckMap[element.tel] = false
       })
       setCheckMap({ ...newCheckMap })
     }
@@ -72,6 +76,35 @@ export default function DriverSection() {
     }
   }, [filterMap, searchKeyword])
 
+  const getCheckDriver = (): Driver[] => {
+    const driverTel: string[] = Object.entries(checkMap ?? {})
+      .filter(([key, value]) => value)
+      .map(([key]) => key);
+    const newDrivers: Driver[] = drivers.map((element) => {
+      if (driverTel.includes(element.tel)) {
+        return { ...element, status: DriverCarStatus.Ready }
+      }
+      return { ...element, status: DriverCarStatus.NotReady }
+    })
+    dispatch(setDriver(newDrivers))
+    return newDrivers
+  }
+
+  const updateStatus = async () => {
+    try {
+      const body: { status: DriverCarStatus, available: boolean, tel: string }[] = getCheckDriver().map((element) => {
+        return {
+          status: element.status,
+          available: element.available,
+          tel: element.tel
+        }
+      })
+      await apiClient.put("/metadata/driver", body)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   return <>
     <div className="bg-primary-second p-5 gap-5 flex flex-col rounded-2xl ">
       <p>เลือกพนักงานขับรถที่พร้อมทำงาน</p>
@@ -96,58 +129,61 @@ export default function DriverSection() {
         </div>
         <button
           onClick={() => {
-            console.log(checkMap)
+            // console.log(checkMap)
+            updateStatus()
           }}
           className="bg-background border-1 border-neutral rounded-xl px-5 py-3 cursor-pointer hover:scale-95 transition-all">ยืนยันสถานะพนักงานขับรถที่เลือก</button>
       </div>
       <Table
         haveCheck={true}
-        columnName={["ชื่อ", "สถานะ", "เบอร์โทร", "หมายเหตุ"]}
+        columnName={["ชื่อ", "สถานะ", "เบอร์โทร", "หมายเหตุ", ""]}
         checkMap={checkMap}
         setCheckMap={(newCheckMap: { [id: string]: boolean }) => {
           setCheckMap({ ...newCheckMap })
         }}
         idData={
           filterData.map((element) => {
-            return element.name
+            return element.tel
           })
         }
       >
         {filterData.map((element, index) => {
-          return (
-            <tr className="hover:bg-gray-50 border-t border-gray-300" key={index}>
-              <td className="px-4 py-4 text-center">
-                <CheckBox disable={element.status == DriverCarStatus.InProgress} iconSize={18}
-                  check={checkMap == undefined ? false : checkMap[element.name]}
-                  setCheck={() => {
-                    if (checkMap != undefined) {
-                      let newCheckMap: { [id: string]: boolean } = checkMap
-                      newCheckMap[element.name] = !checkMap[element.name]
-                      setCheckMap({ ...newCheckMap })
-                    }
-                  }} /></td>
-              <td className="px-4 py-4 text-left w-[20%]">{element.name}</td>
-              <td className="px-4 py-4 text-left">{
-                element.status == DriverCarStatus.Ready ?
-                  <div className="bg-success-second rounded-full py-2 px-4 w-fit border-1 border-success">
-                    <p className="text-success text-sm">{DriverCarStatus.Ready}</p>
-                  </div>
-                  :
-                  element.status == DriverCarStatus.NotReady ?
-                    <div className="bg-error-second rounded-full py-2 px-4 w-fit border-error border-1">
-                      <p className="text-error text-sm">{DriverCarStatus.NotReady}</p>
+          if (element.available) {
+            return (
+              <tr className="hover:bg-gray-50 border-t border-gray-300" key={index}>
+                <td className="px-4 py-4 text-center">
+                  <CheckBox disable={element.status == DriverCarStatus.InProgress} iconSize={18}
+                    check={checkMap == undefined ? false : checkMap[element.tel]}
+                    setCheck={() => {
+                      if (checkMap != undefined) {
+                        let newCheckMap: { [id: string]: boolean } = checkMap
+                        newCheckMap[element.tel] = !checkMap[element.tel]
+                        setCheckMap({ ...newCheckMap })
+                      }
+                    }} /></td>
+                <td className="px-4 py-4 text-left w-[20%]">{element.name}</td>
+                <td className="px-4 py-4 text-left">{
+                  element.status == DriverCarStatus.Ready ?
+                    <div className="bg-success-second rounded-full py-2 px-4 w-fit border-1 border-success">
+                      <p className="text-success text-sm">{DriverCarStatus.Ready}</p>
                     </div>
                     :
-                    element.status == DriverCarStatus.InProgress ?
-                      <div className="bg-inprogress-second rounded-full py-2 px-4 w-fit border-1 border-inprogress">
-                        <p className="text-inprogress text-sm">{DriverCarStatus.InProgress}</p>
+                    element.status == DriverCarStatus.NotReady ?
+                      <div className="bg-error-second rounded-full py-2 px-4 w-fit border-error border-1">
+                        <p className="text-error text-sm">{DriverCarStatus.NotReady}</p>
                       </div>
-                      : <></>
-              }</td>
-              <td className="px-4 py-4 text-left">{element.tel}</td>
-              <td className="px-4 py-4 text-left w-[40%] text-wrap">{element.note ?? "-"}</td>
-            </tr>
-          )
+                      :
+                      element.status == DriverCarStatus.InProgress ?
+                        <div className="bg-inprogress-second rounded-full py-2 px-4 w-fit border-1 border-inprogress">
+                          <p className="text-inprogress text-sm">{DriverCarStatus.InProgress}</p>
+                        </div>
+                        : <></>
+                }</td>
+                <td className="px-4 py-4 text-left">{element.tel}</td>
+                <UpdateNoteColumn id={element.tel} note={element.note ?? "-"} type="driver" />
+              </tr>
+            )
+          }
         })}
       </Table>
       {/* {checkMap != undefined ?
