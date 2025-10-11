@@ -17,13 +17,18 @@ const driverSlice = createSlice({
       state.list = action.payload;
     },
     removeDriver: (state, action: PayloadAction<string>) => {
-      state.list = state.list.map((element) => {
-        if (element.id == action.payload) {
-          let newDriver = element;
-          newDriver.available = true;
-          return newDriver;
+      state.list = state.list.map((driver) => {
+        if (driver.tel == action.payload) {
+          return {
+            name: driver.name,
+            tel: driver.tel,
+            status: driver.status,
+            note: driver.note,
+            available: false,
+            line_id: driver.line_id,
+          };
         }
-        return element;
+        return driver;
       });
     },
   },

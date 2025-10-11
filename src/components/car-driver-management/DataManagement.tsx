@@ -14,23 +14,12 @@ import { apiClient } from "@/src/services/apiClient"
 import { setDestinations } from "@/src/feature/destination/destinationSlice";
 
 export default function CarDriverManagement() {
-  const [uploadMetadataPopup, setUploadMetadataPopup] = useState(false)
   const [totalAmount, setTotalAmount] = useState<{ car: number, driver: number, destination: number }>({ car: 0, driver: 0, destination: 0 })
   const [totalReadyForWork, setTotalReadyForWork] = useState<{ car: number, driver: number }>({ car: 0, driver: 0 })
 
   const [currentTab, setCurrentTab] = useState(0)
 
-  const cars = useSelector((state: RootState) => state.car.list)
   const dispatch = useDispatch<AppDispatch>()
-
-  const filterReadyForWork = (data: Car[] | Driver[]) => {
-    const newData = data.filter((element) => {
-      if (element.status === DriverCarStatus.Ready) {
-        return element
-      }
-    })
-    return newData
-  }
 
   const fetchCarData = async () => {
     const res = await apiClient.get("/metadata/cars")
@@ -46,15 +35,6 @@ export default function CarDriverManagement() {
       }
     })
     dispatch(setCars(cars))
-    setTotalAmount(prev => ({
-      ...prev,
-      car: cars.length
-    }))
-
-    setTotalReadyForWork(prev => ({
-      ...prev,
-      car: filterReadyForWork(cars).length
-    }))
   }
 
   const fetchDriverData = async () => {
@@ -70,15 +50,6 @@ export default function CarDriverManagement() {
       }
     })
     dispatch(setDriver(drivers))
-    setTotalAmount(prev => ({
-      ...prev,
-      driver: drivers.length
-    }))
-
-    setTotalReadyForWork(prev => ({
-      ...prev,
-      driver: filterReadyForWork(drivers).length
-    }))
   }
 
   const fetchDestinationData = async () => {
@@ -96,10 +67,6 @@ export default function CarDriverManagement() {
       }
     })
     dispatch(setDestinations(destinations))
-    setTotalAmount(prev => ({
-      ...prev,
-      destination: destinations.length
-    }))
   }
 
   useEffect(() => {
@@ -115,11 +82,6 @@ export default function CarDriverManagement() {
 
 
   useEffect(() => {
-    // if (currentTab == 0) {
-    //   fetchCarAndDriver()
-    // } else if (currentTab == 1) {
-    //   fetchCarAndDriverAndDestination()
-    // }
   }, [currentTab])
 
 
@@ -127,11 +89,6 @@ export default function CarDriverManagement() {
     <div className="border-1 border-neutral rounded-xl p-5 flex flex-col gap-5">
       <CarDriverManagementHeader
         currentTab={currentTab}
-        totalCars={totalAmount.car}
-        totalDrivers={totalAmount.driver}
-        totalDestinations={totalAmount.destination}
-        totalReadyForWorkCar={totalReadyForWork.car}
-        totalReadyForWorkDriver={totalReadyForWork.driver}
       />
       <TabBar currentTab={currentTab} setCurrentTab={(value: number) => {
         setCurrentTab(value)

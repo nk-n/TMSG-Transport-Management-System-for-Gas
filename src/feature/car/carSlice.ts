@@ -17,13 +17,19 @@ const carSlice = createSlice({
       state.list = action.payload;
     },
     removeCar: (state, action: PayloadAction<string>) => {
-      state.list = state.list.map((element) => {
-        if (element.id == action.payload) {
-          let newCar = element;
-          newCar.available = true;
-          return newCar;
+      state.list = state.list.map((car) => {
+        if (car.id == action.payload) {
+          return {
+            license: car.license,
+            type: car.type,
+            weight: car.weight,
+            id: car.id,
+            status: car.status,
+            note: car.note,
+            available: false,
+          };
         }
-        return element;
+        return car;
       });
     },
   },
