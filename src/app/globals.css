@@ -19,10 +19,13 @@
   --color-error-third: #A9281B;
   --color-inprogress: #F0AB4B;
   --color-inprogress-second: #FFF7EC;
+  --font-sans: var(--font-noto-sans-thai)
 }
 
-@theme inline {
-  --font-sans: var(--font-noto-sans-thai)
+@layer utilities {
+  .button-effect {
+    @apply hover:scale-95 transition-all active:scale-100;
+  }
 }
 
 .scrollbar-hide::-webkit-scrollbar {
