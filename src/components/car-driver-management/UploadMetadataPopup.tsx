@@ -15,6 +15,7 @@ import { setDriver } from "@/src/feature/driver/driverSlice";
 import { DestinationPostBody, toDestinationPostBody } from "@/src/types/post-body/DestinationPostBody";
 import { Destination, toDestination } from "@/src/types/Destination";
 import { setDestinations } from "@/src/feature/destination/destinationSlice";
+import { useToast } from "../utils/ToastContext";
 
 export interface RowData {
   [key: string]: string;
@@ -23,52 +24,15 @@ export interface RowData {
 interface UploadMetadataPopupProps {
   isPopupOpen: boolean
   closePopup: () => void
-  setErrorDialog: (bool: boolean) => void
-  setSuccessDialog: (bool: boolean) => void
-  setError: (text: string) => void
 }
 
-export default function UploadMetadataPopup({ isPopupOpen, closePopup, setErrorDialog, setSuccessDialog, setError }: UploadMetadataPopupProps) {
+export default function UploadMetadataPopup({ isPopupOpen, closePopup}: UploadMetadataPopupProps) {
   const dispatch = useDispatch<AppDispatch>()
-  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [file, setFile] = useState<{ car: File | null, driver: File | null, destination: File | null }>
     ({ car: null, driver: null, destination: null })
   const [datas, setDatas] = useState<{ car: RowData[] | null, driver: RowData[] | null, destination: RowData[] | null }>
     ({ car: null, driver: null, destination: null })
-
-
-
-  const showDialogSuccess = () => {
-    setErrorDialog(false)
-    setSuccessDialog(false)
-    if (timeout.current) {
-      clearTimeout(timeout.current)
-    }
-
-    setSuccessDialog(true)
-
-    timeout.current = setTimeout(() => {
-      setSuccessDialog(false)
-      timeout.current = null
-    }, 5000)
-  }
-
-  const showDialogError = () => {
-    setSuccessDialog(false)
-    setErrorDialog(false)
-    if (timeout.current) {
-      clearTimeout(timeout.current)
-    }
-
-    setErrorDialog(true)
-
-    timeout.current = setTimeout(() => {
-      setErrorDialog(false)
-      timeout.current = null
-    }, 5000)
-  }
-
-
+  const { showToast } = useToast()
 
   const validateFileType = (file: File) => {
     if (
@@ -83,7 +47,6 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup, setErrorD
     console.log(jsonData)
     if (jsonData.length != 0 && jsonData != null && jsonData[0] != null) {
       for (const element of Object.keys(jsonData[0])) {
-        console.log(element)
         if (!columnName.includes(element)) {
           throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
         }
@@ -127,12 +90,10 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup, setErrorD
         validateColumn(jsonData, carColumn)
         datas.car = jsonData
         setDatas({ ...datas })
-        showDialogSuccess()
       }
     } catch (err) {
       if (err instanceof Error) {
-        setError(err.message)
-        showDialogError()
+        showToast(err.message, "error")
       }
     }
     event.target.value = "";
@@ -148,12 +109,10 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup, setErrorD
         validateColumn(jsonData, driverColumn)
         datas.driver = jsonData
         setDatas({ ...datas })
-        showDialogSuccess()
       }
     } catch (err) {
       if (err instanceof Error) {
-        setError(err.message)
-        showDialogError()
+        showToast(err.message, "error")
       }
       event.target.value = "";
     }
@@ -169,12 +128,10 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup, setErrorD
         validateColumn(jsonData, destinationColumn)
         datas.destination = jsonData
         setDatas({ ...datas })
-        showDialogSuccess()
       }
     } catch (err) {
       if (err instanceof Error) {
-        setError(err.message)
-        showDialogError()
+        showToast(err.message, "error")
       }
     }
     event.target.value = "";
@@ -183,30 +140,27 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup, setErrorD
   const uploadCarData = async (data: CarPostBody[]) => {
     try {
       const res = await apiClient.post("/metadata/cars", data)
-      showDialogSuccess()
+        showToast("บันทึกข้อมูลสำเร็จ", "success")
     } catch (err: any) {
-      setError(err.message)
-      showDialogError()
+      showToast(err.message, "error")
     }
   }
 
   const uploadDriverData = async (data: DriverPostBody[]) => {
     try {
       await apiClient.post("/metadata/drivers", data)
-      showDialogSuccess()
+      showToast("บันทึกข้อมูลสำเร็จ", "success")
     } catch (err: any) {
-      setError(err.message)
-      showDialogError()
+      showToast(err.message, "error")
     }
   }
 
   const uploadDestinationData = async (data: DestinationPostBody[]) => {
     try {
       await apiClient.post("/metadata/destinations", data)
-      showDialogSuccess()
+      showToast("บันทึกข้อมูลสำเร็จ", "success")
     } catch (err: any) {
-      setError(err.message)
-      showDialogError()
+      showToast(err.message, "error")
     }
   }
 
