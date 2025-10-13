@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./provider";
+import { ToastProvider } from "../components/utils/ToastContext";
 
 const notoSansThai = Noto_Sans_Thai({ subsets: ["thai"], display: "swap", variable: "--font-noto-sans-thai" })
 
@@ -18,7 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en" >
       <body className="h-full overflow-hidden">
-        <Providers>{children}</Providers>
+        <Providers>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -8,6 +8,7 @@ import UploadMetadataPopup from "./UploadMetadataPopup";
 import { useState } from "react";
 import clsx from "clsx";
 import { Destination } from "@/src/types/Destination";
+import { useToast } from "../utils/ToastContext";
 
 interface CarDriverManagementHeaderProps {
   currentTab: number
@@ -16,9 +17,6 @@ export default function CarDriverManagementHeader({
   currentTab,
 }: CarDriverManagementHeaderProps) {
   const [uploadMetadataPopup, setUploadMetadataPopup] = useState(false)
-  const [successDialog, setSuccessDialog] = useState(false)
-  const [errorDialog, setErrorDialog] = useState(false)
-  const [error, setError] = useState("")
   const cars = useSelector((state: RootState) => state.car.list)
   const drivers = useSelector((state: RootState) => state.driver.list)
   const destinations = useSelector((state: RootState) => state.destination.list)
@@ -43,36 +41,9 @@ export default function CarDriverManagementHeader({
 
   return <>
     <div className="flex flex-col gap-10">
-      <div className={clsx("transition-all fixed bg-white right-5 bottom-5 flex gap-3 items-center p-3 rounded-xl shadow-xl z-50", {
-        "translate-y-28": !errorDialog,
-        "translate-y-0": errorDialog,
-      })}>
-        <div className="rounded-full bg-error w-fit p-3">
-          <CloseIcon size={16} className="stroke-white stroke-3" />
-        </div>
-        <p>{error}</p>
-      </div>
-      <div className={clsx("transition-all fixed bg-white right-5 bottom-5 flex gap-3 items-center p-3 rounded-xl shadow-xl z-50", {
-        "translate-y-28": !successDialog,
-        "translate-y-0": successDialog
-      })}>
-        <div className="rounded-full bg-success w-fit p-3">
-          <CheckIcon size={20} className="stroke-white" />
-        </div>
-        <p>นำเข้าข้อมูลสำเร็จ</p>
-      </div>
       <UploadMetadataPopup isPopupOpen={uploadMetadataPopup}
         closePopup={() => {
           setUploadMetadataPopup(false)
-        }}
-        setErrorDialog={(bool) => {
-          setErrorDialog(bool)
-        }}
-        setSuccessDialog={(bool) => {
-          setSuccessDialog(bool)
-        }}
-        setError={(text) => {
-          setError(text)
         }}
       />
       <div className="flex gap-10 items-center">
