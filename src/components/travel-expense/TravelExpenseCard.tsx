@@ -56,7 +56,7 @@ export default function TravelExpenseCard({ order, openEditTravelExpensePopup }:
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-3">
             <CarIcon size={30} className="stroke-foreground" />
-            <p className="font-bold">{order.car.id}</p>
+            <p className="font-bold">{order.carId}</p>
           </div>
           <p className="text-white bg-primary rounded-full px-3 py-2 text-sm">{order.status}</p>
           <p className="border-1 border-neutral text-neutral  rounded-full px-3 py-2 text-sm">{order.orderId}</p>
@@ -78,7 +78,7 @@ export default function TravelExpenseCard({ order, openEditTravelExpensePopup }:
         </div>
         <div className="flex-1">
           <p className="text-neutral">ปลายทาง</p>
-          <p>{order.destination.name}</p>
+          <p>{order.destination}</p>
           <p className="mt-4 text-neutral">กิโลกรัมแก๊สที่ลงให้ลูกค้า</p>
           <p>{order.serveGas == 0 ? "-" : order.serveGas}</p>
         </div>

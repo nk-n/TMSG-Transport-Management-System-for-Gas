@@ -11,12 +11,12 @@ export default function TravelExpense() {
 
   const [currentTab, setCurrentTab] = useState(0)
   let menuList: { content: JSX.Element }[] = [
+    { content: <UnApproveSection openEditTravelExpensePopup={() => { setTravelSpecialExpensePopup(true) }} /> },
     {
       content: <ApproveSection openEditTravelExpensePopup={() => {
         setTravelSpecialExpensePopup(true)
       }} />
     },
-    { content: <UnApproveSection /> },
   ]
 
   return <>
