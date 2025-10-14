@@ -3,7 +3,6 @@ import { JSX, useEffect, useState } from "react";
 import { CheckIcon, CloseIcon } from "../icon/Icon";
 import clsx from "clsx";
 import { Status, StatusHistory } from "@/src/types/StatusHistory";
-import { orderRawData } from "@/src/constants/OrderSampleData";
 import { Order } from "@/src/types/Order";
 import { StatusHistoryMap } from "./TrackingCarCard";
 
@@ -81,7 +80,7 @@ export default function DeliveryStatusBar({ label, index, status, order, statusM
       case Status.Deliver:
         return new Date(statusHistory.timestamp.getTime() + (60 * 60 * 1000))
       case Status.Travel:
-        return new Date(statusHistory.timestamp.getTime() + (order.destination.timeUsed * 60 * 1000))
+        return new Date(statusHistory.timestamp.getTime() + (order.timeUse * 60 * 1000))
       default:
         return new Date(statusHistory.timestamp.getTime())
     }
@@ -133,7 +132,7 @@ export default function DeliveryStatusBar({ label, index, status, order, statusM
     } else if (status === Status.Travel) {
       const loadStatusHistory = findStatusHistoryByStatus(Status.Deliver);
       if (loadStatusHistory !== undefined) {
-        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > order.destination.timeUsed;
+        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > order.timeUse;
       }
     } else if (status === Status.Deliver) {
       const loadStatusHistory = findStatusHistoryByStatus(Status.Finish);

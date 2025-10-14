@@ -1,5 +1,4 @@
 "use client"
-import { orderRawData } from "@/src/constants/OrderSampleData"
 import { Order } from "@/src/types/Order"
 import { useEffect, useState } from "react"
 import InputBox from "../utils/InputBox"
@@ -15,7 +14,7 @@ export default function ApproveSection({openEditTravelExpensePopup} : ApproveSec
 
   useEffect(() => {
     const fetchOrder = () => {
-      setOrder([...orderRawData])
+      // setOrder([...orderRawData])
     }
     fetchOrder()
   }, [])
