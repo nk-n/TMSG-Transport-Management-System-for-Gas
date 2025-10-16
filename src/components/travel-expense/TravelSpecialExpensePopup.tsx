@@ -1,18 +1,59 @@
 import clsx from "clsx"
 import { BuildingIcon, CloseIcon, LocationIcon } from "../icon/Icon"
 import InputBox from "../utils/InputBox"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { SpecialTrip, Trip } from "@/src/types/Trip"
+import { apiClient } from "@/src/services/apiClient"
+import { Order } from "@/src/types/Order"
 
 interface TravelSpecialExpensePopup {
   isPopupOpen: boolean
   closePopup: () => void
+  specialTrip: SpecialTrip[]
+  fetchSpecialTrip: () => void
+  trip: Trip
+  distance: number
 }
 
-export default function TravelSpecialExpensePopup({ isPopupOpen, closePopup }: TravelSpecialExpensePopup) {
-  const [distance, setDistance] = useState<string>("")
+export default function TravelSpecialExpensePopup({ isPopupOpen, closePopup, specialTrip, trip, fetchSpecialTrip, distance }: TravelSpecialExpensePopup) {
+  // const [distance, setDistance] = useState<string>("")
   const [addTravelSpecialExpensePopup, setAddTravelSpecialExpensePopup] = useState(false)
   const [descTravelSpecialExpense, setDescTravelSpecialExpense] = useState("")
   const [costTravelSpecialExpense, setCostTravelSpecialExpense] = useState("")
+
+  const clearTextField = () => {
+    setDescTravelSpecialExpense("")
+    setCostTravelSpecialExpense("")
+  }
+
+  const totalTrip = (): number => {
+    let total: number = trip.money
+    specialTrip.forEach((element) => {
+      total += element.money
+    })
+    return total
+  }
+
+  // useEffect(() => {
+  //   setDistance(order.distance)
+  // }, [])
+
+  const addSpecialTrip = async () => {
+    const res = await apiClient.post("/trip/special-trip", {
+      trip_id: trip.trip_id,
+      reason: descTravelSpecialExpense,
+      money: Number(costTravelSpecialExpense),
+    })
+    fetchSpecialTrip()
+    console.log(res)
+  }
+
+  const deleteSpecialTrip = async (id: string) => {
+    const res = await apiClient.delete(`/trip/special-trip/${id}`)
+    fetchSpecialTrip()
+    console.log(res)
+  }
+
   return <>
     <div className={clsx("fixed bg-foreground/25 inset-0 flex justify-center items-center z-10 transition-all", {
       "opacity-0 pointer-events-none": !isPopupOpen,
@@ -32,48 +73,44 @@ export default function TravelSpecialExpensePopup({ isPopupOpen, closePopup }: T
         <p className="text-2xl w-full text-center font-bold">คำนวณค่าเที่ยว</p>
         <div className="border-1 border-success bg-success-second flex flex-col justify-center items-center rounded-xl p-5 gap-2 w-full">
           <p className="text-success text-lg">ค่าเที่ยวรวม</p>
-          <p className="text-5xl text-success font-bold">฿400.00</p>
+          <p className="text-5xl text-success font-bold">฿{totalTrip().toFixed(2)}</p>
         </div>
         <div className="pb-6 border-b-1 border-neutral w-full gap-3 flex flex-col">
           <p className="w-full text-start">ระยะทาง (กิโลเมตร)</p>
-          <InputBox placeholder="ระยะทาง" controller={{
+          <p className="border border-neutral rounded-xl py-3 px-3">{distance}</p>
+          {/* <InputBox placeholder="ระยะทาง" controller={{
             value: distance, handdleChange: (e: React.ChangeEvent<HTMLInputElement>) => {
               setDistance(e.target.value)
             }
-          }} />
+          }} /> */}
         </div>
         <div className="border-b-1 border-b-neutral pb-6 w-full gap-4 flex flex-col">
           <p>รายละเอียดค่าเที่ยว</p>
-          <div className="flex justify-between w-full border-1 border-neutral rounded-xl p-3">
-            <div className="flex gap-3 items-center">
-              <LocationIcon size={20} />
-              <p>ค่าระยะทาง (150 กม. x ฿1)</p>
-            </div>
-            <p>฿300</p>
-          </div>
-          <div className="flex justify-between w-full border-1 border-primary rounded-xl p-3 bg-primary-second">
-            <div className="flex gap-3 items-center">
-              <BuildingIcon size={20} className="stroke-primary" />
-              <p>เข้ากรุงเทพฯ</p>
-            </div>
-            <p className="text-primary">฿300</p>
-          </div>
-          <div className="flex justify-between w-full border-1 border-inprogress rounded-xl p-3 bg-inprogress-second items-center">
-            <div className="flex gap-3 items-center">
-              <p>เส้นทางยากลำบาก</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <p className="">฿300</p>
-              <button className="cursor-pointer">
-                <CloseIcon size={15} className="stroke-foreground " />
-              </button>
-            </div>
-          </div>
+          {
+            specialTrip.map((element) => {
+              return (
+                <div className="flex justify-between w-full border-1 border-inprogress rounded-xl p-3 bg-inprogress-second" key={element.special_trip_id}>
+                  <div className="flex gap-3 items-center">
+                    <p>{element.reason}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <p className="text-inprogress">฿{element.money}</p>
+                    <button className="cursor-pointer" onClick={() => {
+                      deleteSpecialTrip(element.special_trip_id)
+                    }}>
+                      <CloseIcon size={15} className="stroke-foreground " />
+                    </button>
+                  </div>
+                </div>
+              )
+            })
+          }
           <button className={clsx("flex border-1 border-neutral border-dashed w-full p-3 rounded-xl justify-center items-center gap-3 cursor-pointer hover:scale-95 transition-all", {
             "hidden": addTravelSpecialExpensePopup
           })} onClick={() => {
             setAddTravelSpecialExpensePopup(true)
           }}>
+
             <CloseIcon size={10} className="stroke-foreground rotate-45" />
             <p>เพิ่มรายการค่าเที่ยว</p>
           </button>
@@ -91,21 +128,23 @@ export default function TravelSpecialExpensePopup({ isPopupOpen, closePopup }: T
                   setCostTravelSpecialExpense(e.target.value)
                 }
               }} />
-              <button className="bg-success p-3 text-white rounded-xl cursor-pointer" onClick={() => {
+              <button className="bg-success p-3 text-white rounded-xl button-effect" onClick={() => {
                 setAddTravelSpecialExpensePopup(false)
+                addSpecialTrip()
+                clearTextField()
               }}>เพิ่ม</button>
-              <button className="cursor-pointer" onClick={() => {
+              <button className="button-effect" onClick={() => {
                 setAddTravelSpecialExpensePopup(false)
+                clearTextField()
               }}>ยกเลิก</button>
             </div>
           </div>
         </div>
         <div className="flex w-full gap-3">
-          <button className="flex-1 bg-success text-white p-3 rounded-xl cursor-pointer hover:scale-95 transition-all">ยืนยัน</button>
-          <button className="flex-1 border-1 border-neutral p-3 rounded-xl cursor-pointer hover:scale-95 transition-all" onClick={() => {
+          <button className="flex-1 bg-success text-white p-3 rounded-xl button-effect" onClick={() => {
             closePopup()
             setAddTravelSpecialExpensePopup(false)
-          }}>ยกเลิก</button>
+          }}>ยืนยัน</button>
         </div>
       </div>
     </div>

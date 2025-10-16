@@ -1,7 +1,11 @@
 "use client"
+import { useState } from "react";
 import { CoinIcon, FileIcon, PeopleIcon, UploadIcon } from "../icon/Icon";
 
-export default function BillingHeader() {
+interface BillingHeader {
+  totalFee: number
+}
+export default function BillingHeader({ totalFee }: BillingHeader) {
 
   return <>
     <div className="flex flex-col gap-10">
@@ -27,7 +31,7 @@ export default function BillingHeader() {
         </div>
         <div className="flex flex-col items-center border-1 border-neutral rounded-xl px-20 py-5 gap-3">
           <p className="">ยอดรวมค่าขนส่ง</p>
-          <p className="text-error text-4xl font-bold">฿1,200,588</p>
+          <p className="text-error text-4xl font-bold">฿{totalFee.toLocaleString()}</p>
         </div>
       </div>
     </div>

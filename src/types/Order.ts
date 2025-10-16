@@ -32,11 +32,16 @@ export interface OrderDriver {
 
 export interface Order {
   carId: string;
+
   drivers: OrderDriver[];
+
   status: OrderStatus;
   orderId: string;
   note: string;
+
   destination: string;
+  distance: number;
+
   timeUse: number;
   loadGas: number;
   drop: number;
@@ -44,6 +49,9 @@ export interface Order {
   deadline: Date;
   startTime: Date;
   statusHistory: StatusHistory[];
+
+  tripId: string;
+  money: number;
 }
 export interface OrderResponse {
   car_id: string;
@@ -59,6 +67,9 @@ export interface OrderResponse {
   drop: number;
   gas_send: number;
   delivery_status: { status: string; timestamp: string }[];
+  trip_id: string;
+  money: number;
+  distance: string;
 }
 
 export const toOrder = (data: OrderResponse): Order => {
@@ -74,6 +85,7 @@ export const toOrder = (data: OrderResponse): Order => {
     status: toOrderStatus(data.order_status),
     note: data.note,
     destination: data.destination,
+    distance: Number(data.distance),
     loadGas: data.gas_amount,
     drop: data.drop,
     serveGas: data.gas_send,
@@ -86,5 +98,7 @@ export const toOrder = (data: OrderResponse): Order => {
         timestamp: new Date(element.timestamp),
       };
     }),
+    tripId: data.trip_id,
+    money: data.money,
   };
 };

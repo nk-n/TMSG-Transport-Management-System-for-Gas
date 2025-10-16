@@ -1,23 +1,55 @@
 "use client"
-import { Order } from "@/src/types/Order"
+import { Order, OrderResponse, toOrder } from "@/src/types/Order"
 import { useEffect, useState } from "react"
 import InputBox from "../utils/InputBox"
 import { SearchIcon } from "../icon/Icon"
 import BillingCard from "./BillingCard"
+import { apiClient } from "@/src/services/apiClient"
 
-export default function BillingSection() {
+interface BillingSectionProps {
+  setTotalFee: (data: number) => void
+}
+
+export default function BillingSection({ setTotalFee }: BillingSectionProps) {
   const [searchKeyword, setSearchKeyword] = useState("")
-  const [order, setOrder] = useState<Order[] | null>(null)
+  const [order, setOrder] = useState<Order[]>([])
+  const [filerOrder, setFilterOrder] = useState<Order[]>([])
+
+  const fetchOrder = async () => {
+    const res = await apiClient.get(`/order/อนุมัติ`)
+    const data: Order[] = res.data.data.map((element: OrderResponse) => {
+      return toOrder(element)
+    })
+    setFilterOrder([...data])
+    setOrder([...data])
+  }
 
   useEffect(() => {
-    const fetchOrder = () => {
-      // setOrder([...orderRawData])
-    }
     fetchOrder()
   }, [])
 
-  const handdleSearchKeyword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchKeyword(e.target.value)
+
+  const handleSearchKeyword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const keyword: string = e.target.value.trim()
+    const newOrder: Order[] = order.filter((element) => {
+      if (element.orderId.includes(keyword) || element.carId.includes(keyword)) {
+        return element
+      }
+      else {
+        const driver = element.drivers[0]
+        if (driver.name.includes(keyword) || driver.tel.includes(keyword)) {
+          return element
+        }
+        if (element.drivers.length === 2) {
+          const driver2 = element.drivers[1]
+          if (driver2.name.includes(keyword) || driver2.tel.includes(keyword)) {
+            return element
+          }
+        }
+      }
+    })
+    setSearchKeyword(keyword)
+    setFilterOrder(newOrder)
   }
 
   return <>
@@ -25,16 +57,15 @@ export default function BillingSection() {
       <InputBox
         leading={<SearchIcon size={24} />}
         placeholder="ค้นหา"
-        controller={{ value: searchKeyword, handdleChange: handdleSearchKeyword }} />
+        controller={{ value: searchKeyword, handdleChange: handleSearchKeyword }} />
       {
-        order != null ?
-          order?.map((element) => {
-            return (
-              <BillingCard order={element} key={element.orderId} />
-            )
-          })
-          :
-          <></>
+        filerOrder.map((element) => {
+          return (
+            <BillingCard order={element} key={element.orderId} setTotalFee={(data: number) => {
+              setTotalFee(data)
+            }} />
+          )
+        })
       }
     </div>
   </>
