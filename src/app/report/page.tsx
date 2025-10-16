@@ -14,12 +14,11 @@ export default function ReportPage() {
   // ]
 
 
-  const [currentSelectYear, setCurrentSelectYear] = useState<string>("")
+  const [currentSelectYear, setCurrentSelectYear] = useState<number>((new Date()).getFullYear())
   const [optionYear, setOptionYear] = useState<number[]>([])
   const [currentTab, setCurrentTab] = useState(0)
 
   useEffect(() => {
-    setCurrentSelectYear((new Date()).getFullYear().toString())
     generateYear()
 
   }, [])
@@ -33,7 +32,7 @@ export default function ReportPage() {
   }
 
   return <>
-    <div className="p-5">
+    <div className="p-5 overflow-auto">
       <button onClick={() => {
         router.back()
       }}>
@@ -43,7 +42,7 @@ export default function ReportPage() {
       <div className="flex w-full justify-center items-center gap-3 mt-4 mb-14">
         <p className="text-neutral">ข้อมูลประจำปี</p>
         <div className="relative">
-          <select id="year" value={currentSelectYear} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => { setCurrentSelectYear(e.target.value) }} className="w-[130px] pl-2  py-2 border-1 border-neutral rounded-xl text-left outline-none cursor-pointer appearance-none">
+          <select id="year" value={currentSelectYear} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => { setCurrentSelectYear(Number(e.target.value)) }} className="w-[130px] pl-2  py-2 border-1 border-neutral rounded-xl text-left outline-none cursor-pointer appearance-none">
             {optionYear.map((element, index) => {
               return <option key={index} value={element}>
                 {element}
@@ -65,7 +64,7 @@ export default function ReportPage() {
           </div>
         ]} /> */}
         {/* {menuList[currentTab]} */}
-        <AnnualSection />
+        <AnnualSection year={currentSelectYear} />
       </div>
     </div>
   </>

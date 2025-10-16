@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" >
-      <body className="h-full overflow-hidden">
+      <body className="h-full">
         <Providers>
           <ToastProvider>
             {children}

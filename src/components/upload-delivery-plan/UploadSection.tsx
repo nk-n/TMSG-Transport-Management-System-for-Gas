@@ -19,7 +19,7 @@ export default function UploadSection() {
   const { showToast } = useToast()
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const orderColumn = ["เลขออเดอร์", "เวลาที่ส่งมอบ", "น้ำหนักบรรทุก", "ต้นทาง", "ปลายทาง", "drop", "หมายเหตุ", "เบอร์รถ", "เบอร์พนักงานขับรถ1", "เบอร์พนักงานขับรถ2", "เวลาเข้าโหลด"]
+    const orderColumn = ["ลำดับเที่ยว", "เลขออเดอร์", "เวลาที่ส่งมอบ", "น้ำหนักบรรทุก", "ต้นทาง", "ปลายทาง", "drop", "หมายเหตุ", "เบอร์รถ", "เบอร์พนักงานขับรถ1", "เบอร์พนักงานขับรถ2", "เวลาเข้าโหลด"]
     try {
       if (event.target.files != null) {
         const newFile = event.target.files[0]

@@ -7,23 +7,17 @@ import UnApproveSection from "./UnApproveSection"
 import TravelSpecialExpensePopup from "./TravelSpecialExpensePopup"
 
 export default function TravelExpense() {
-  const [travelSpecialExpensePopup, setTravelSpecialExpensePopup] = useState(false)
 
   const [currentTab, setCurrentTab] = useState(0)
   let menuList: { content: JSX.Element }[] = [
-    { content: <UnApproveSection openEditTravelExpensePopup={() => { setTravelSpecialExpensePopup(true) }} /> },
+    { content: <UnApproveSection openEditTravelExpensePopup={() => { }} /> },
     {
-      content: <ApproveSection openEditTravelExpensePopup={() => {
-        setTravelSpecialExpensePopup(true)
-      }} />
+      content: <ApproveSection />
     },
   ]
 
   return <>
     <div className="border-1 border-neutral rounded-xl p-5 flex flex-col gap-5">
-      <TravelSpecialExpensePopup isPopupOpen={travelSpecialExpensePopup} closePopup={() => {
-        setTravelSpecialExpensePopup(false)
-      }} />
       <TravelExpenseHeader />
       <TabBar currentTab={currentTab} setCurrentTab={(value: number) => {
         setCurrentTab(value)
