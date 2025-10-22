@@ -14,7 +14,7 @@ export default function AdminHeader() {
       <div className="flex gap-4 items-center">
         <div className="border-1 border-neutral rounded-full h-fit px-4 py-3 flex gap-2">
           <PeopleIcon size={24} className="fill-foreground" />
-          <p>เจ้าหน้าที่จัดส่ง นายรักษิต รุ่งรัตนไชย</p>
+          <p>ผู้ดูแลระบบ นายรักษิต รุ่งรัตนไชย</p>
         </div>
         <div className="flex flex-col items-end">
           <p>วันที่</p>
