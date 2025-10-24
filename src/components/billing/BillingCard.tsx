@@ -8,14 +8,14 @@ import DeliveryStatusBar from "../tracking-car/DeliveryStatusBar";
 
 interface TrackingCarCardProps {
   order: Order
-  setTotalFee: (data: number) => void
+  billingRate: number
 }
 
 export interface StatusHistoryMap {
   [key: string]: StatusHistory,
 }
 
-export default function BillingCard({ order, setTotalFee }: TrackingCarCardProps) {
+export default function BillingCard({ order, billingRate }: TrackingCarCardProps) {
   const [extend, setExtend] = useState(false)
   const [isLate, setIsLate] = useState(false)
 
@@ -23,11 +23,10 @@ export default function BillingCard({ order, setTotalFee }: TrackingCarCardProps
   const statusHistoryArray = [Status.Start, Status.Waiting, Status.Load, Status.Travel, Status.Deliver]
 
   useEffect(() => {
-    setTotalFee(calculateDeliveryFee())
   }, [])
 
   const calculateDeliveryFee = (): number => {
-    return 15000
+    return order.loadGas * billingRate
   }
 
 
@@ -67,12 +66,12 @@ export default function BillingCard({ order, setTotalFee }: TrackingCarCardProps
             <CarIcon size={30} className="stroke-foreground" />
             <p className="font-bold">{order.carId}</p>
           </div>
-          <p className="text-white bg-primary rounded-full px-3 py-2 text-sm">{order.status}</p>
+          <p className="text-white bg-success rounded-full px-3 py-2 text-sm">{order.status}</p>
           <p className="border-1 border-neutral text-neutral  rounded-full px-3 py-2 text-sm">{order.orderId}</p>
         </div>
         <div className="flex flex-col items-end text-neutral">
           <p className="">คนขับคนที่ 1: {order.drivers[0].name} ({order.drivers[0].tel}) คนขับคนที่ 2: {order.drivers.length > 1 ? `${order.drivers[1].name} (${order.drivers[1].tel})` : "-"}</p>
-          <p>เวลาส่งมอบ: {order.deadline.toDateString()}</p>
+          <p>เวลาส่งมอบ: {order.deadline.toLocaleString('th-TH')}</p>
         </div>
       </div>
       <div className="bg-primary-second border-1 border-primary rounded py-3 px-4">
@@ -128,7 +127,7 @@ export default function BillingCard({ order, setTotalFee }: TrackingCarCardProps
                     order={order}
                     status={element}
                     statusMap={statusHistoryToMap()}
-                    setIsLate={() => {
+                    setLate={() => {
                       setIsLate(true)
                     }}
 

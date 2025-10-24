@@ -5,6 +5,8 @@ import clsx from "clsx";
 import { Status, StatusHistory } from "@/src/types/StatusHistory";
 import { Order } from "@/src/types/Order";
 import { StatusHistoryMap } from "./TrackingCarCard";
+import { useSelector } from "react-redux";
+import { RootState } from "@/src/store/store";
 
 interface DeliveryStatusBarProps {
   label: string
@@ -12,7 +14,7 @@ interface DeliveryStatusBarProps {
   status: Status
   order: Order
   statusMap: StatusHistoryMap
-  setIsLate: () => void
+  setLate: () => void
 }
 
 export enum DeliveryStatus {
@@ -25,7 +27,7 @@ export enum DeliveryStatus {
 }
 
 
-export default function DeliveryStatusBar({ label, index, status, order, statusMap, setIsLate }: DeliveryStatusBarProps) {
+export default function DeliveryStatusBar({ label, index, status, order, statusMap, setLate }: DeliveryStatusBarProps) {
 
   const findStatusHistoryByStatus = (status: Status): StatusHistory | undefined => {
     return statusMap[status]
@@ -33,9 +35,9 @@ export default function DeliveryStatusBar({ label, index, status, order, statusM
 
   useEffect(() => {
     if (isLate()) {
-      setIsLate()
+      setLate()
     }
-  }, [])
+  }, [statusMap])
 
 
   // สถานะของ delivery status bar อันนี้
@@ -43,10 +45,30 @@ export default function DeliveryStatusBar({ label, index, status, order, statusM
 
   const isCurrentProgresstion = (): boolean => {
     if (statusHistory === undefined) return false
-    const targetTimeStamp = statusHistory?.timestamp
-    for (const element of order.statusHistory) {
-      if (element.timestamp.getTime() > targetTimeStamp?.getTime()) {
+    if (status === Status.Start) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Waiting);
+      if (loadStatusHistory !== undefined) {
         return false
+      }
+    } else if (status === Status.Waiting) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Load);
+      if (loadStatusHistory !== undefined) {
+        return false;
+      }
+    } else if (status === Status.Load) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Travel);
+      if (loadStatusHistory !== undefined) {
+        return false;
+      }
+    } else if (status === Status.Travel) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Deliver);
+      if (loadStatusHistory !== undefined) {
+        return false;
+      }
+    } else if (status === Status.Deliver) {
+      const loadStatusHistory = findStatusHistoryByStatus(Status.Finish);
+      if (loadStatusHistory !== undefined) {
+        return false;
       }
     }
     return true
@@ -122,22 +144,22 @@ export default function DeliveryStatusBar({ label, index, status, order, statusM
     if (status === Status.Waiting) {
       const loadStatusHistory = findStatusHistoryByStatus(Status.Load);
       if (loadStatusHistory !== undefined) {
-        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > 30;
+        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > 30 * 60 * 1000;
       }
     } else if (status === Status.Load) {
       const loadStatusHistory = findStatusHistoryByStatus(Status.Travel);
       if (loadStatusHistory !== undefined) {
-        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > 60;
+        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > 60 * 60 * 1000;
       }
     } else if (status === Status.Travel) {
       const loadStatusHistory = findStatusHistoryByStatus(Status.Deliver);
       if (loadStatusHistory !== undefined) {
-        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > order.timeUse;
+        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > order.timeUse * 60 * 1000;
       }
     } else if (status === Status.Deliver) {
       const loadStatusHistory = findStatusHistoryByStatus(Status.Finish);
       if (loadStatusHistory !== undefined) {
-        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > 60;
+        return (loadStatusHistory.timestamp.getTime() - statusHistory.timestamp.getTime()) > 60 * 60 * 1000;
       }
     }
     return false;

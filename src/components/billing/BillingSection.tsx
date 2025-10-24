@@ -5,15 +5,37 @@ import InputBox from "../utils/InputBox"
 import { SearchIcon } from "../icon/Icon"
 import BillingCard from "./BillingCard"
 import { apiClient } from "@/src/services/apiClient"
+import { RowData } from "../car-driver-management/UploadMetadataPopup"
 
 interface BillingSectionProps {
-  setTotalFee: (data: number) => void
+  billingData: RowData[]
+  oil: number
 }
 
-export default function BillingSection({ setTotalFee }: BillingSectionProps) {
+export default function BillingSection({ billingData, oil }: BillingSectionProps) {
   const [searchKeyword, setSearchKeyword] = useState("")
   const [order, setOrder] = useState<Order[]>([])
   const [filerOrder, setFilterOrder] = useState<Order[]>([])
+
+  const calculateTotalFee = (): number => {
+    const totalFee = filerOrder.reduce((sum, order) => sum + calculateBilling(order) * order.loadGas, 0);
+    return totalFee
+  }
+
+  const calculateBilling = (order: Order): number => {
+    for (const element of billingData) {
+      if (Number(element["Start_KM"]) <= order.distance && order.distance <= Number(element["End_KM"])) {
+        let i = 0
+        for (i; i < Object.keys(element).length - 2; i++) {
+          if (oil < i + 21) {
+            return Number(element[`Data_${i + 1}`])
+          }
+        }
+        return Number(element[`Data_${i}`])
+      }
+    }
+    return 0
+  }
 
   const fetchOrder = async () => {
     const res = await apiClient.get(`/order/อนุมัติ`)
@@ -26,6 +48,11 @@ export default function BillingSection({ setTotalFee }: BillingSectionProps) {
 
   useEffect(() => {
     fetchOrder()
+    const intervalId = setInterval(async () => {
+      fetchOrder()
+    }, 60000);
+
+    return () => clearInterval(intervalId);
   }, [])
 
 
@@ -54,6 +81,16 @@ export default function BillingSection({ setTotalFee }: BillingSectionProps) {
 
   return <>
     <div>
+      <div className="flex gap-4 justify-center mb-5 ">
+        <div className="flex flex-col items-center border-1 border-neutral rounded-xl px-20 py-5 gap-3 bg-background">
+          <p className="">จำนวนเที่ยวขนส่งทั้งหมด</p>
+          <p className="text-primary text-4xl font-bold">{order.length}</p>
+        </div>
+        <div className="flex flex-col items-center border-1 border-neutral rounded-xl px-20 py-5 gap-3 bg-background ">
+          <p className="">ยอดรวมค่าขนส่ง</p>
+          <p className="text-error text-4xl font-bold">฿{calculateTotalFee().toLocaleString('th-TH', { minimumFractionDigits: 2 })}</p>
+        </div>
+      </div>
       <InputBox
         leading={<SearchIcon size={24} />}
         placeholder="ค้นหา"
@@ -61,9 +98,10 @@ export default function BillingSection({ setTotalFee }: BillingSectionProps) {
       {
         filerOrder.map((element) => {
           return (
-            <BillingCard order={element} key={element.orderId} setTotalFee={(data: number) => {
-              setTotalFee(data)
-            }} />
+            <BillingCard
+              order={element}
+              key={element.orderId}
+              billingRate={calculateBilling(element)} />
           )
         })
       }

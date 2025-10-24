@@ -102,3 +102,19 @@ export const toOrder = (data: OrderResponse): Order => {
     money: data.money,
   };
 };
+
+export interface TotalOrderStatus {
+  totalWaitingOrder: number;
+  totalDeliveryOrder: number;
+  totalWaitingApproveOrder: number;
+  totalApproveOrder: number;
+}
+
+export const toTotalOrderStatus = (data: RowData): TotalOrderStatus => {
+  return {
+    totalWaitingOrder: Number(data["totalWaitingOrder"]),
+    totalDeliveryOrder: Number(data["totalDeliveryOrder"]),
+    totalWaitingApproveOrder: Number(data["totalWaitingApproveOrder"]),
+    totalApproveOrder: Number(data["totalApproveOrder"]),
+  };
+};

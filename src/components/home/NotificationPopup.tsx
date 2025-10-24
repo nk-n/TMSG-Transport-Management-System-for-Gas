@@ -2,7 +2,6 @@
 import { NotificationType } from "@/src/types/Notification";
 import { ClockIcon, CloseIcon } from "../icon/Icon";
 import clsx from "clsx";
-import { useEffect } from "react";
 
 
 export default function NotificationPopup({ data, isOpen, closePopup }: { data: NotificationType[], isOpen: boolean, closePopup: () => void }) {
@@ -13,11 +12,11 @@ export default function NotificationPopup({ data, isOpen, closePopup }: { data: 
   //   document.body.classList.remove("overflow-y-hidden")
   // }
   return <>
-    <div className={clsx(" transition-all bg-foreground/50 fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center z-50", {
+    <div className={clsx(" transition-all bg-foreground/50 fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center z-50 ", {
       "opacity-100": isOpen,
       "opacity-0 pointer-events-none": !isOpen
     })}>
-      <div className={clsx("transition-transform bg-white w-full max-w-[500px] rounded-xl", {
+      <div className={clsx("transition-transform bg-white w-full max-w-[500px] rounded-xl min-h-[500px]", {
         " scale-95": !isOpen
       })}>
         <div className="flex justify-between items-center p-5 border-b-1 border-b-neutral">
@@ -26,8 +25,7 @@ export default function NotificationPopup({ data, isOpen, closePopup }: { data: 
             onClick={() => {
               closePopup()
             }}
-            className="cursor-pointer outline-none">
-            <CloseIcon size={20} className="stroke-foreground" />
+            className="cursor-pointer outline-none"> <CloseIcon size={20} className="stroke-foreground" />
           </button>
         </div>
         <div className="p-5 gap-5 flex flex-col overflow-y-scroll max-h-[500px] scrollbar-hide">
@@ -38,9 +36,6 @@ export default function NotificationPopup({ data, isOpen, closePopup }: { data: 
                 <div className="flex-1 flex flex-col gap-2">
                   <p className="font-bold">{element.id} <span className="text-error ml-2">ล่าช้า</span></p>
                   <p className="text-neutral">ติดต่อ: {element.tel}</p>
-                  {element.reason != undefined ?
-                    <p className="text-error-thrid text-sm bg-error-second border-l-1 border-l-error-thrid px-3 py-2"><span className="font-bold mr-2">หมายเหตุ:</span>{element.reason}</p> : <></>
-                  }
                 </div>
               </div>
             )

@@ -1,47 +1,99 @@
 'use client'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NotificationIcon, PeopleIcon } from "../icon/Icon";
 import NotificationPopup from "./NotificationPopup";
-import { NotificationType } from "@/src/types/Notification";
+import { NotificationType, toNotificationType } from "@/src/types/Notification";
+import { apiClient } from "@/src/services/apiClient";
+import { Order, OrderResponse, toOrder } from "@/src/types/Order";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "@/src/store/store";
+import { setOrder } from "@/src/feature/order/orderSlice";
+import { Status, StatusHistory } from "@/src/types/StatusHistory";
+import { StatusHistoryMap } from "../tracking-car/TrackingCarCard";
 
-let data: NotificationType[] = [
-  {
-    id: "45778PTL.401เที่ยว 1",
-    tel: "061-879-8569",
-    reason: "รถรอต่อแถวส่งสินค้านานมาก"
-  },
-  {
-    id: "45778PTL.401เที่ยว 1",
-    tel: "061-879-8569",
-  },
-  {
-    id: "45778PTL.401เที่ยว 1",
-    tel: "061-879-8569",
-  },
-  {
-    id: "45778PTL.401เที่ยว 1",
-    tel: "061-879-8569",
-    reason: "รถรอต่อแถวส่งสินค้านานมาก"
-  },
-  {
-    id: "45778PTL.401เที่ยว 1",
-    tel: "061-879-8569",
-    reason: "รถรอต่อแถวส่งสินค้านานมาก"
-  },
-  {
-    id: "45778PTL.401เที่ยว 1",
-    tel: "061-879-8569",
-    reason: "รถรอต่อแถวส่งสินค้านานมาก"
-  },
-  {
-    id: "45778PTL.401เที่ยว 1",
-    tel: "061-879-8569",
-    reason: "รถรอต่อแถวส่งสินค้านานมาก"
-  },
-]
 
 export default function HomeHeader() {
+  const dispatch = useDispatch<AppDispatch>()
+  const [orders, setOrders] = useState<Order[]>([])
+  // const [statusMap, setStatusMap] = useState<StatusHistoryMap>({})
   const [notificationPopupOpen, setNotificationPopupOpen] = useState(false)
+
+  const findStatusHistoryByStatus = (status: Status, statusMap: StatusHistoryMap): StatusHistory => {
+    return statusMap[status]
+  }
+
+  const statusHistoryToMap = (data: Order): StatusHistoryMap => {
+    const statusHistoryMap: StatusHistoryMap = {}
+    for (const element of data.statusHistory) {
+      statusHistoryMap[element.status] = element
+    }
+    return statusHistoryMap
+    // setStatusMap(statusHistoryMap)
+  }
+
+  const isLate = (data: Order): boolean => {
+    const now: Date = new Date("2025-09-26T14:00:00+07:00")
+    const statusHistoryMap = statusHistoryToMap(data)
+    for (const element of data.statusHistory) {
+      const status = element.status
+      if (status === Status.Waiting) {
+        const loadStatusHistory = findStatusHistoryByStatus(Status.Load, statusHistoryMap);
+        if (loadStatusHistory !== undefined && (loadStatusHistory.timestamp.getTime() - element.timestamp.getTime()) > 30 * 60 * 1000) {
+          return true
+        }
+      }
+      else if (status === Status.Load) {
+        const loadStatusHistory = findStatusHistoryByStatus(Status.Travel, statusHistoryMap);
+        if (loadStatusHistory !== undefined && (loadStatusHistory.timestamp.getTime() - element.timestamp.getTime()) > 60 * 60 * 1000) {
+          return true
+        }
+      } else if (status === Status.Travel) {
+        const loadStatusHistory = findStatusHistoryByStatus(Status.Deliver, statusHistoryMap);
+        if (loadStatusHistory !== undefined && (loadStatusHistory.timestamp.getTime() - element.timestamp.getTime()) > data.timeUse * 60 * 1000) {
+          return true
+        }
+      } else if (status === Status.Deliver) {
+        const loadStatusHistory = findStatusHistoryByStatus(Status.Finish, statusHistoryMap);
+        if (loadStatusHistory !== undefined && (loadStatusHistory.timestamp.getTime() - element.timestamp.getTime()) > 60 * 60 * 1000) {
+          return true
+        }
+      }
+    }
+    return false;
+  }
+
+  const filterOrderLate = (data: Order[]) => {
+    const newOrder = data.filter((element) => {
+      if (isLate(element)) {
+        return element
+      }
+    })
+    setOrders(newOrder)
+  }
+
+  const fetchOrder = async () => {
+    console.log("FETCHING DATA...")
+    const resWaiting = await apiClient.get(`/order/รอรับงาน`)
+    const dataWaiting: Order[] = resWaiting.data.data.map((element: OrderResponse) => {
+      return toOrder(element)
+    })
+    const resProgress = await apiClient.get(`/order/ระหว่างจัดส่งสินค้า`)
+    const dataProgress: Order[] = resProgress.data.data.map((element: OrderResponse) => {
+      return toOrder(element)
+    })
+    dispatch(setOrder([...dataProgress, ...dataWaiting]))
+    filterOrderLate([...dataProgress, ...dataWaiting])
+  }
+
+  useEffect(() => {
+    fetchOrder()
+    const intervalId = setInterval(async () => {
+      fetchOrder()
+    }, 6000);
+
+    return () => clearInterval(intervalId);
+  }, [])
+
   return <>
     <div className="flex shadow-md rounded-xl p-8 w-full justify-between bg-white">
       <div>
@@ -54,7 +106,12 @@ export default function HomeHeader() {
             setNotificationPopupOpen(true)
           }}
           className="border-1 border-neutral rounded-full h-fit p-3 cursor-pointer relative transition-transform hover:scale-95">
-          <div className=" text-sm bg-error text-white flex justify-center items-center rounded-full absolute px-[9px] py-[3px] -top-[10px] -right-[10px]">{data.length}</div>
+          {
+            orders.length > 0 ?
+              <div className=" text-sm bg-error text-white flex justify-center items-center rounded-full absolute px-[9px] py-[3px] -top-[10px] -right-[10px]">{orders.length}</div>
+              :
+              <></>
+          }
           <NotificationIcon size={24} className="stroke-foreground" />
         </button>
         <div className="border-1 border-neutral rounded-full h-fit px-4 py-3 flex gap-2">
@@ -67,7 +124,9 @@ export default function HomeHeader() {
         </div>
       </div>
     </div>
-    <NotificationPopup data={data} isOpen={notificationPopupOpen} closePopup={() => {
+    <NotificationPopup data={orders.map((element) => {
+      return toNotificationType(element)
+    })} isOpen={notificationPopupOpen} closePopup={() => {
       setNotificationPopupOpen(false)
     }} />
   </>

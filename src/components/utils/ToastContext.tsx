@@ -27,7 +27,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       clearTimeout(timeout.current)
     }
     setToast({ message, type, show: true });
-    timeout.current = setTimeout(() => setToast({ message, type, show: false }), 3000);
+    timeout.current = setTimeout(() => setToast({ message, type, show: false }), 5000);
   };
 
   return (

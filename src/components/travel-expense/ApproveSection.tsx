@@ -22,6 +22,11 @@ export default function ApproveSection() {
 
   useEffect(() => {
     fetchOrder()
+    const intervalId = setInterval(async () => {
+      fetchOrder()
+    }, 60000);
+
+    return () => clearInterval(intervalId);
   }, [])
 
   const handleSearchKeyword = (e: React.ChangeEvent<HTMLInputElement>) => {

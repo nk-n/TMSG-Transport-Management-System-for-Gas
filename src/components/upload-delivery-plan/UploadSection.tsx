@@ -18,6 +18,35 @@ export default function UploadSection() {
   const [loading, setLoading] = useState(false)
   const { showToast } = useToast()
 
+
+
+  const validateOrderField = (jsonData: RowData[]) => {
+    const dateTimeRegex = /^\d{1,2}\/\d{1,2}\/\d{4} \d{1,2}:\d{2}$/;
+    const checkNull = ["เลขออเดอร์", "ต้นทาง", "ปลายทาง", "เบอร์รถ", "เบอร์พนักงานขับรถ1"]
+    for (const row of jsonData) {
+      if (isNaN(Number(row["ลำดับเที่ยว"]))) {
+        throw new Error("คอลัมน์ ลำดับเที่ยว ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      if (isNaN(Number(row["น้ำหนักบรรทุก"]))) {
+        throw new Error("คอลัมน์ น้ำหนักบรรทุก ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      if (isNaN(Number(row["drop"]))) {
+        throw new Error("คอลัมน์ drop ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      if (!dateTimeRegex.test(row["เวลาที่ส่งมอบ"])) {
+        throw new Error("คอลัมน์ เวลาส่งมอบ ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      if (!dateTimeRegex.test(row["เวลาเข้าโหลด"])) {
+        throw new Error("คอลัมน์ เวลาเข้าโหลด ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      for (const column of checkNull) {
+        if (row[column] === "" || row[column] === "-") {
+          throw new Error(`คอลัมน์ ${column} ไม่ถูกต้องตามที่ระบบกำหนด`)
+        }
+      }
+    }
+  }
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const orderColumn = ["ลำดับเที่ยว", "เลขออเดอร์", "เวลาที่ส่งมอบ", "น้ำหนักบรรทุก", "ต้นทาง", "ปลายทาง", "drop", "หมายเหตุ", "เบอร์รถ", "เบอร์พนักงานขับรถ1", "เบอร์พนักงานขับรถ2", "เวลาเข้าโหลด"]
     try {
@@ -26,6 +55,7 @@ export default function UploadSection() {
         validateFileType(newFile)
         const jsonData = await excelToJSON(newFile)
         validateColumn(jsonData, orderColumn)
+        validateOrderField(jsonData)
         setFile(newFile)
         setData(jsonData)
       }

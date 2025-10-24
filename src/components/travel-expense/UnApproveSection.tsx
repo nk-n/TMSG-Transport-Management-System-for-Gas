@@ -15,7 +15,6 @@ export default function UnApproveSection({ openEditTravelExpensePopup }: UnAppro
   const [order, setOrder] = useState<Order[]>([])
 
   const fetchOrder = async () => {
-    console.log("HAAHAHAH")
     const res = await apiClient.get(`/order/รออนุมัติ`)
     const data: Order[] = res.data.data.map((element: OrderResponse) => {
       return toOrder(element)
@@ -26,6 +25,11 @@ export default function UnApproveSection({ openEditTravelExpensePopup }: UnAppro
 
   useEffect(() => {
     fetchOrder()
+    const intervalId = setInterval(async () => {
+      fetchOrder()
+    }, 60000);
+
+    return () => clearInterval(intervalId);
   }, [])
 
   const handdleSearchKeyword = (e: React.ChangeEvent<HTMLInputElement>) => {
