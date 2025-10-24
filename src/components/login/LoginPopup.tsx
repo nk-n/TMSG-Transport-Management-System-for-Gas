@@ -83,7 +83,7 @@ export default function LoginPopup() {
         <button className="cursor-pointer bg-primary rounded-xl py-3 text-white hover:scale-95 transition-transform mt-8"
         onClick={async ()=>{
           
-          const response = await apiClient.post(`/api/auth/signin`,
+          const response = await apiClient.post(`/auth/signin`,
             {
               "username": employeeId,
               "password": password

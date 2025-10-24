@@ -5,11 +5,11 @@ import CheckBox from "../utils/CheckBox"
 import clsx from "clsx"
 import { DriverCarStatus } from "@/src/types/CarDriver"
 
-export default function FilterPopup({ isOpen, closePopup, filterMap, setFilterMap }:
+export default function FilterPopup<T>({ isOpen, closePopup, filterMap, setFilterMap }:
   {
     isOpen: boolean, closePopup: () => void,
-    filterMap: { status: DriverCarStatus, check: boolean }[],
-    setFilterMap: (newFilterMap: { status: DriverCarStatus, check: boolean }[]) => void
+    filterMap: { status: T, check: boolean }[],
+    setFilterMap: (newFilterMap: { status: T, check: boolean }[]) => void
   }) {
   return <>
     <div className={clsx("transition-all bg-background absolute -left-[100px] -bottom-[220px] border-1 border-neutral rounded-xl z-20", {
@@ -38,7 +38,7 @@ export default function FilterPopup({ isOpen, closePopup, filterMap, setFilterMa
                 })
                 setFilterMap([...newFilterMap])
               }} />
-            <p className="flex-1">{element.status}</p>
+            <p className="flex-1">{String(element.status)}</p>
           </div>
         )
       })}

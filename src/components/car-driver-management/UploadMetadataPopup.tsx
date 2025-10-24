@@ -26,7 +26,7 @@ interface UploadMetadataPopupProps {
   closePopup: () => void
 }
 
-export default function UploadMetadataPopup({ isPopupOpen, closePopup}: UploadMetadataPopupProps) {
+export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadMetadataPopupProps) {
   const dispatch = useDispatch<AppDispatch>()
   const [file, setFile] = useState<{ car: File | null, driver: File | null, destination: File | null }>
     ({ car: null, driver: null, destination: null })
@@ -43,7 +43,52 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup}: UploadMe
     }
   }
 
-  const validateColumn = (jsonData: RowData[], columnName: string[]) => {
+  const checkNull = (row: RowData, checkColumn: string[]) => {
+    for (const column of checkColumn) {
+      if (row[column] === "" || row[column] === "-") {
+        throw new Error(`คอลัมน์ ${column} ไม่ถูกต้องตามที่ระบบกำหนด`)
+      }
+    }
+  }
+
+  const validateCarField = (jsonData: RowData[]) => {
+    const columnCheck = ["เบอร์รถ", "ทะเบียนรถ"]
+    const weight = ["Trailer", 8, 10]
+    const type = ["หัวลาก", "สิบล้อ", "กึ่งพ่วง"]
+    for (const row of jsonData) {
+      if (!weight.includes(row["น้ำหนัก"])) {
+        throw new Error("คอลัมน์ น้ำหนัก ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      if (!type.includes(row["ประเภทรถ"])) {
+        throw new Error("คอลัมน์ ประเภทรถ ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      checkNull(row, columnCheck)
+    }
+
+  }
+
+  const validateDriverField = (jsonData: RowData[]) => {
+    const columnCheck = ["ชื่อ-สกุล", "เบอร์ติดต่อ"]
+    for (const row of jsonData) {
+      checkNull(row, columnCheck)
+    }
+
+  }
+
+  const validateDestinationField = (jsonData: RowData[]) => {
+    const columnCheck = ["ชื่อสถานที่", "ที่อยู่", "จังหวัด", "ภูมิภาค", "เส้นทาง"]
+    for (const row of jsonData) {
+      if (isNaN(Number(row["ระยะทาง"]))) {
+        throw new Error("คอลัมน์ ระยะทาง ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      if (isNaN(Number(row["ระยะเวลาที่ใช้เดินทาง"]))) {
+        throw new Error("คอลัมน์ ระยะเวลา ที่ใช้เดินทางไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      checkNull(row, columnCheck)
+    }
+  }
+
+  const validateColumn = (jsonData: RowData[], columnName: string[], validateField?: (jsonData: RowData[]) => void) => {
     console.log(jsonData)
     if (jsonData.length != 0 && jsonData != null && jsonData[0] != null) {
       for (const element of Object.keys(jsonData[0])) {
@@ -51,6 +96,9 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup}: UploadMe
           throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
         }
       }
+    }
+    if (validateField) {
+      validateField(jsonData)
     }
   }
 
@@ -87,7 +135,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup}: UploadMe
         validateFileType(event.target.files[0])
         setFile({ ...file })
         const jsonData = await excelToJSON(event.target.files[0])
-        validateColumn(jsonData, carColumn)
+        validateColumn(jsonData, carColumn, validateCarField)
         datas.car = jsonData
         setDatas({ ...datas })
       }
@@ -106,7 +154,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup}: UploadMe
         validateFileType(event.target.files[0])
         setFile({ ...file })
         const jsonData = await excelToJSON(event.target.files[0])
-        validateColumn(jsonData, driverColumn)
+        validateColumn(jsonData, driverColumn, validateDriverField)
         datas.driver = jsonData
         setDatas({ ...datas })
       }
@@ -125,7 +173,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup}: UploadMe
         validateFileType(event.target.files[0])
         setFile({ ...file })
         const jsonData = await excelToJSON(event.target.files[0])
-        validateColumn(jsonData, destinationColumn)
+        validateColumn(jsonData, destinationColumn, validateDestinationField)
         datas.destination = jsonData
         setDatas({ ...datas })
       }
@@ -140,7 +188,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup}: UploadMe
   const uploadCarData = async (data: CarPostBody[]) => {
     try {
       const res = await apiClient.post("/metadata/cars", data)
-        showToast("บันทึกข้อมูลสำเร็จ", "success")
+      showToast("บันทึกข้อมูลสำเร็จ", "success")
     } catch (err: any) {
       showToast(err.message, "error")
     }
@@ -239,11 +287,24 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup}: UploadMe
           <p className="font-bold">ข้อกำหนดรูปแบบในการนำเข้าข้อมูล</p>
           <ul className="list-disc list-inside">
             <li>ระบบรองรับเฉพาะไฟล์ประเภท .xlsx และ .xls เท่านั้น</li>
-            <li>กำหนดรูปแบบของไฟล์รถขนส่งจะต้องมีคอลัมน์ดังต่อไปนี้ เบอร์รถ, น้ำหนัก, ทะเบียนรถ, ประเภทรถ</li>
+            <li>
+              กำหนดรูปแบบของไฟล์รถขนส่งจะต้องมีคอลัมน์ดังต่อไปนี้ เบอร์รถ, น้ำหนัก, ทะเบียนรถ, ประเภทรถ
+              <ul className="list-disc list-inside pl-6">
+                <li>คอลัมน์น้ำหนักกำหนดให้ 3 ค่า: <span className="font-bold">8</span>, <span className="font-bold">10</span>, <span className="font-bold">Trailer</span></li>
+              </ul>
+              <ul className="list-disc list-inside pl-6">
+                <li>คอลัมน์ประเภทรถกำหนดให้ 3 ค่า: <span className="font-bold">หัวลาก</span>, <span className="font-bold">สิบล้อ</span>, <span className="font-bold">กึ่งพ่วง</span></li>
+              </ul>
+            </li>
             <li>กำหนดรูปแบบของไฟล์จะต้องมีคอลัมน์ดังต่อไปนี้ ชื่อ-สกุล, เบอร์ติดต่อ</li>
-            <li>กำหนดรูปแบบของไฟล์สถานที่จัดส่งจะต้องมีคอลัมน์ดังต่อไปนี้ ชื่อสถานที่, ที่อยู่, จังหวัด, ภูมิภาค, ระยะทาง, เส้นทาง, ระยะเวลาที่ใช้เดินทาง</li>
+            <li>
+              กำหนดรูปแบบของไฟล์สถานที่จัดส่งจะต้องมีคอลัมน์ดังต่อไปนี้ ชื่อสถานที่, ที่อยู่, จังหวัด, ภูมิภาค, ระยะทาง, เส้นทาง, ระยะเวลาที่ใช้เดินทาง
+              <ul className="list-disc list-inside pl-6">
+                <li>คอลัมน์ระยะทางและระยะเวลาที่ใช้เดินทางต้องเป็น <span className="font-bold">ตัวเลข</span></li>
+              </ul>
+            </li>
+            <li>ทุกคอลัมน์ไม่สามารถเป็นค่าว่างได้</li>
           </ul>
-
         </div>
         <div className="flex items-end w-full flex-col gap-3">
           <button className="bg-primary text-white px-5 py-3 rounded-xl hover:scale-95 transition-all cursor-pointer w-fit" onClick={() => {

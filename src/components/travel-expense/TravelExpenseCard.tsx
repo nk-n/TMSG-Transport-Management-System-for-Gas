@@ -119,7 +119,7 @@ export default function TravelExpenseCard({ order, fetchOrder }: TrackingCarCard
         </div>
         <div className="flex flex-col items-end text-neutral">
           <p className="">คนขับคนที่ 1: {order.drivers[0].name} ({order.drivers[0].tel}) คนขับคนที่ 2: {order.drivers.length > 1 ? `${order.drivers[1].name} (${order.drivers[1].tel})` : "-"}</p>
-          <p>เวลาส่งมอบ: {order.deadline.toDateString()}</p>
+          <p>เวลาส่งมอบ: {order.deadline.toLocaleString('th-TH')}</p>
         </div>
       </div>
       <div className="bg-primary-second border-1 border-primary rounded py-3 px-4">

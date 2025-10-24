@@ -114,9 +114,11 @@ export default function TrackingCarCard({ order }: TrackingCarCardProps) {
                     order={order}
                     status={element}
                     statusMap={statusHistoryToMap()}
-                    setIsLate={() => {
-                      setIsLate(true)
-                    }}
+                    setLate={
+                      () => {
+                        setIsLate(true)
+                      }
+                    }
 
                   />
                 )
