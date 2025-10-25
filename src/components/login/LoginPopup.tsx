@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/src/store/store";
 import { setJWT } from "@/src/feature/jwt/jwtSlice";
 import { create, getCookies } from "@/src/middleware/cookies";
+import { useToast } from "../utils/ToastContext";
 
 function getCookie(name: string): string | null {
   const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
@@ -19,29 +20,42 @@ export default function LoginPopup() {
   const [employeeId, setEmployeeId] = useState("")
   const [password, setPassword] = useState("")
   const [check, setCheck] = useState(false)
-  // const [jwt, setJWT] = useState("")
   const dispatch = useDispatch<AppDispatch>()
-  const jwt = useSelector((state: RootState) => state.jwt)
   const router = useRouter()
+  const { showToast } = useToast()
 
-  const fetchCookies = async () => {
-    const jwt : string = await getCookies()
-    if (jwt !== "") {
-      router.replace("/home")
+
+  useEffect(() => {
+  }, [])
+
+  const handdleSignIn = async () => {
+    try {
+      const response = await apiClient.post(`/auth/signin`,
+        {
+          "username": employeeId,
+          "password": password
+        }
+      )
+
+      await create(response.data.data.token, "jwt")
+      await create(response.data.data.role, "role")
+      localStorage.setItem("username", response.data.data.name)
+      localStorage.setItem("role", response.data.data.role)
+      dispatch(setJWT(response.data.token))
+      if (response.data.data.role === "[ROLE_ADMIN]") {
+        router.replace("/admin")
+      } else {
+        router.replace("/home")
+      }
+      showToast("เข้าสู่ระบบสำเร็จ", "success")
+    } catch (e: any) {
+      console.log(e.response.data.message)
+      showToast("เข้าสู่ระบบไม่สำเร็จ: " + e.response.data.message, "error")
     }
-    dispatch(setJWT(jwt))
-    console.log(jwt)
-  }
-
-
-
-  useEffect(()=>{
-    fetchCookies()
-    // console.log(jwt.jwt)
-    // if (jwt.jwt !== "") {
+    // if (response.data.data !== "invalid credentials") {
     //   router.replace("/home")
     // }
-  },[])
+  }
 
   return <>
     <div className="bg-foreground/35 fixed top-0 bottom-0 left-0 right-0 flex justify-center items-center">
@@ -66,38 +80,31 @@ export default function LoginPopup() {
               <p className="mb-2">
                 รหัสผ่าน
               </p>
-              <InputBox leading={<LockIcon size={24} />} trailing={<EyeIcon size={24} />} placeholder="รหัสพนักงาน" controller={{
-                value: password, handdleChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-                  setPassword(e.target.value)
+              <InputBox
+                leading={<LockIcon size={24} />}
+                placeholder="รหัสพนักงาน" controller={{
+                  value: password, handdleChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                    setPassword(e.target.value)
+                  }
+                }}
+                password={true}
+                trailing={
+                  <EyeIcon size={20} />
                 }
-              }} />
+              />
             </div>
-            <div className="flex items-center gap-3 mt-3">
+            {/* <div className="flex items-center gap-3 mt-3">
               <CheckBox iconSize={15} disable={false} check={check} setCheck={() => {
                 setCheck(!check)
               }} />
               <p>จดจำการเข้าสู่ระบบ</p>
-            </div>
+            </div> */}
           </div>
         </div>
-        <button className="cursor-pointer bg-primary rounded-xl py-3 text-white hover:scale-95 transition-transform mt-8"
-        onClick={async ()=>{
-          
-          const response = await apiClient.post(`/auth/signin`,
-            {
-              "username": employeeId,
-              "password": password
-            }
-          )
-
-          create(response.data.data)
-          if (response.data.data !== "invalid credentials") {
-            router.replace("/home")
-          }
-          // dispatch(setJWT(response.data.data))
-          // console.log(response.data.data)
-
-        }}
+        <button className=" bg-primary rounded-xl py-3 text-white  mt-8 button-effect"
+          onClick={() => {
+            handdleSignIn()
+          }}
         >
           เข้าสู่ระบบ</button>
       </div>

@@ -182,7 +182,7 @@ export default function TravelExpenseCard({ order, fetchOrder }: TrackingCarCard
                     order={order}
                     status={element}
                     statusMap={statusHistoryToMap()}
-                    setIsLate={() => {
+                    setLate={() => {
                       setIsLate(true)
                     }}
 

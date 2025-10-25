@@ -10,6 +10,9 @@ import { AppDispatch } from "@/src/store/store";
 import { setOrder } from "@/src/feature/order/orderSlice";
 import { Status, StatusHistory } from "@/src/types/StatusHistory";
 import { StatusHistoryMap } from "../tracking-car/TrackingCarCard";
+import { LogOut } from "lucide-react";
+import { deleteCookie } from "@/src/middleware/cookies";
+import { useRouter } from "next/navigation";
 
 
 export default function HomeHeader() {
@@ -17,6 +20,26 @@ export default function HomeHeader() {
   const [orders, setOrders] = useState<Order[]>([])
   // const [statusMap, setStatusMap] = useState<StatusHistoryMap>({})
   const [notificationPopupOpen, setNotificationPopupOpen] = useState(false)
+  const router = useRouter()
+
+  const [time, setTime] = useState<string>("")
+  const [name, setName] = useState<string>("")
+
+  const calTime = () => {
+    setTime(new Date().toLocaleString('th-TH'))
+  }
+
+  const getUserName = () => {
+    const name = localStorage.getItem("username")
+    if (name) {
+      setName(name)
+    }
+  }
+
+  useEffect(() => {
+    calTime()
+    getUserName()
+  }, [])
 
   const findStatusHistoryByStatus = (status: Status, statusMap: StatusHistoryMap): StatusHistory => {
     return statusMap[status]
@@ -116,11 +139,18 @@ export default function HomeHeader() {
         </button>
         <div className="border-1 border-neutral rounded-full h-fit px-4 py-3 flex gap-2">
           <PeopleIcon size={24} className="fill-foreground" />
-          <p>เจ้าหน้าที่จัดส่ง นายรักษิต รุ่งรัตนไชย</p>
+          <p>เจ้าหน้าที่จัดส่ง {name}</p>
         </div>
+        <button className="rounded-full border-1 border-neutral p-3 button-effect" onClick={async () => {
+          router.replace("/login")
+          deleteCookie("role")
+          deleteCookie("jwt")
+        }}>
+          <LogOut className="stroke-foreground" />
+        </button>
         <div className="flex flex-col items-end">
-          <p>วันที่</p>
-          <p>22/7/2568</p>
+          <p>วันที่ เวลา</p>
+          <p>{time}</p>
         </div>
       </div>
     </div>

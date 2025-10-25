@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import { SpecialTrip, Trip } from "@/src/types/Trip"
 import { apiClient } from "@/src/services/apiClient"
 import { Order } from "@/src/types/Order"
+import { useToast } from "../utils/ToastContext"
 
 interface TravelSpecialExpensePopup {
   isPopupOpen: boolean
@@ -20,6 +21,7 @@ export default function TravelSpecialExpensePopup({ isPopupOpen, closePopup, spe
   const [addTravelSpecialExpensePopup, setAddTravelSpecialExpensePopup] = useState(false)
   const [descTravelSpecialExpense, setDescTravelSpecialExpense] = useState("")
   const [costTravelSpecialExpense, setCostTravelSpecialExpense] = useState("")
+  const { showToast } = useToast()
 
   const clearTextField = () => {
     setDescTravelSpecialExpense("")
@@ -39,6 +41,11 @@ export default function TravelSpecialExpensePopup({ isPopupOpen, closePopup, spe
   // }, [])
 
   const addSpecialTrip = async () => {
+    const cost: number = Number(costTravelSpecialExpense)
+    if (cost < 0 || isNaN(cost)) {
+      showToast("ไม่สามารถกำหนดค่าเที่ยวพิเศษเป็นเลขติดลบหรือค่าที่ไม่ใช่ตัวเลขได้", "error")
+      return
+    }
     const res = await apiClient.post("/trip/special-trip", {
       trip_id: trip.trip_id,
       reason: descTravelSpecialExpense,

@@ -141,6 +141,7 @@ export default function UploadSection() {
         })
         await apiClient.post("/order/", orderPostBody)
         setLoading(false)
+        showToast("นำเข้าข้อมูลสำเร็จ", "success")
       }
     } catch (err: any) {
       showToast("นำเข้าข้อมูลไม่สำเร็จ: " + err.message, "error")

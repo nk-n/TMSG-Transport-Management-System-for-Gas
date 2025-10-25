@@ -300,7 +300,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
             <li>
               กำหนดรูปแบบของไฟล์สถานที่จัดส่งจะต้องมีคอลัมน์ดังต่อไปนี้ ชื่อสถานที่, ที่อยู่, จังหวัด, ภูมิภาค, ระยะทาง, เส้นทาง, ระยะเวลาที่ใช้เดินทาง
               <ul className="list-disc list-inside pl-6">
-                <li>คอลัมน์ระยะทางและระยะเวลาที่ใช้เดินทางต้องเป็น <span className="font-bold">ตัวเลข</span></li>
+                <li>คอลัมน์ระยะทางและระยะเวลาที่ใช้เดินทางต้องเป็น <span className="font-bold">ตัวเลข</span> เป็นระยะเวลาและระยะทางจากต้นทาง SCBPK</li>
               </ul>
             </li>
             <li>ทุกคอลัมน์ไม่สามารถเป็นค่าว่างได้</li>
