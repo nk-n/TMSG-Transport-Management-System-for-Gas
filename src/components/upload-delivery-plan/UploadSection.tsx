@@ -27,10 +27,13 @@ export default function UploadSection() {
       if (isNaN(Number(row["ลำดับเที่ยว"]))) {
         throw new Error("คอลัมน์ ลำดับเที่ยว ไม่ถูกต้องตามที่ระบบกำหนด")
       }
-      if (isNaN(Number(row["น้ำหนักบรรทุก"]))) {
+      if (isNaN(Number(row["น้ำหนักบรรทุก"])) || Number(row["น้ำหนักบรรทุก"]) <= 0 || Number(row["น้ำหนักบรรทุก"]) > 100000) {
         throw new Error("คอลัมน์ น้ำหนักบรรทุก ไม่ถูกต้องตามที่ระบบกำหนด")
       }
-      if (isNaN(Number(row["drop"]))) {
+      if (isNaN(Number(row["ลำดับเที่ยว"])) || Number(row["ลำดับเที่ยว"]) <= 0 || Number(row["ลำดับเที่ยว"]) > 100) {
+        throw new Error("คอลัมน์ ลำดับเที่ยว ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      if (isNaN(Number(row["drop"])) || Number(row["drop"]) <= 0 || Number(row["drop"]) > 2) {
         throw new Error("คอลัมน์ drop ไม่ถูกต้องตามที่ระบบกำหนด")
       }
       if (!dateTimeRegex.test(row["เวลาที่ส่งมอบ"])) {
@@ -40,7 +43,7 @@ export default function UploadSection() {
         throw new Error("คอลัมน์ เวลาเข้าโหลด ไม่ถูกต้องตามที่ระบบกำหนด")
       }
       for (const column of checkNull) {
-        if (row[column] === "" || row[column] === "-") {
+        if (row[column].trim() === "" || row[column].trim() === "-") {
           throw new Error(`คอลัมน์ ${column} ไม่ถูกต้องตามที่ระบบกำหนด`)
         }
       }
@@ -48,7 +51,7 @@ export default function UploadSection() {
   }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const orderColumn = ["ลำดับเที่ยว", "เลขออเดอร์", "เวลาที่ส่งมอบ", "น้ำหนักบรรทุก", "ต้นทาง", "ปลายทาง", "drop", "หมายเหตุ", "เบอร์รถ", "เบอร์พนักงานขับรถ1", "เบอร์พนักงานขับรถ2", "เวลาเข้าโหลด"]
+    const orderColumn = ["ลำดับเที่ยว", "เลขออเดอร์", "เวลาที่ส่งมอบ", "น้ำหนักบรรทุก", "ต้นทาง", "ปลายทาง", "drop", "หมายเหตุ", "เบอร์รถ", "เบอร์พนักงานขับรถ1", "เบอร์พนักงานขับรถ2", "เวลาเข้าโหลด", "ลำดับเที่ยว"]
     try {
       if (event.target.files != null) {
         const newFile = event.target.files[0]
@@ -105,6 +108,8 @@ export default function UploadSection() {
           throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
         }
       }
+    } else {
+      throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
     }
   }
 
@@ -142,6 +147,7 @@ export default function UploadSection() {
         await apiClient.post("/order/", orderPostBody)
         setLoading(false)
         showToast("นำเข้าข้อมูลสำเร็จ", "success")
+        setFile(null)
       }
     } catch (err: any) {
       showToast("นำเข้าข้อมูลไม่สำเร็จ: " + err.message, "error")

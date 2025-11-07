@@ -12,6 +12,7 @@ export interface OrderPostBody {
   tel1: string;
   tel2: string;
   load_time: string;
+  group_id: number;
 }
 
 export const toOrderPostBody = (row: RowData): OrderPostBody => {
@@ -31,5 +32,6 @@ export const toOrderPostBody = (row: RowData): OrderPostBody => {
         ? ""
         : row["เบอร์พนักงานขับรถ2"],
     load_time: row["เวลาเข้าโหลด"].trim(),
+    group_id: Number(row["ลำดับเที่ยว"])
   };
 };

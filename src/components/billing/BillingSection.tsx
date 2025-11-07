@@ -21,24 +21,36 @@ export default function BillingSection({ billingData, oil }: BillingSectionProps
     const totalFee = filerOrder.reduce((sum, order) => sum + calculateBilling(order) * order.loadGas, 0);
     return totalFee
   }
+  
 
   const calculateBilling = (order: Order): number => {
+    if (billingData.length === 0) {
+      return 0
+    }
+    let targetElement: RowData = billingData[0];
     for (const element of billingData) {
+      targetElement = element
       if (Number(element["Start_KM"]) <= order.distance && order.distance <= Number(element["End_KM"])) {
         let i = 0
         for (i; i < Object.keys(element).length - 2; i++) {
           if (oil < i + 21) {
-            return Number(element[`Data_${i + 1}`])
+            return Number(element[`${i + 1}`])
           }
         }
-        return Number(element[`Data_${i}`])
+        return Number(element[`${i}`])
       }
     }
-    return 0
+    let i = 0
+    for (i; i < Object.keys(targetElement).length - 2; i++) {
+      if (oil < i + 21) {
+        return Number(targetElement[`${i + 1}`])
+      }
+    }
+    return Number(targetElement[`${i}`])
   }
 
   const fetchOrder = async () => {
-    const res = await apiClient.get(`/order/อนุมัติ`)
+    const res = await apiClient.get(`/order/อนุมัติ/true`)
     const data: Order[] = res.data.data.map((element: OrderResponse) => {
       return toOrder(element)
     })

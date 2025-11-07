@@ -10,6 +10,7 @@ import { AppDispatch, RootState } from "@/src/store/store";
 import { setJWT } from "@/src/feature/jwt/jwtSlice";
 import { create, getCookies } from "@/src/middleware/cookies";
 import { useToast } from "../utils/ToastContext";
+import LoadingScene from "../utils/LoadingScene";
 
 function getCookie(name: string): string | null {
   const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
@@ -23,13 +24,14 @@ export default function LoginPopup() {
   const dispatch = useDispatch<AppDispatch>()
   const router = useRouter()
   const { showToast } = useToast()
+  const [loading, setLoading] = useState(false)
 
 
   useEffect(() => {
   }, [])
-
   const handdleSignIn = async () => {
     try {
+      setLoading(true)
       const response = await apiClient.post(`/auth/signin`,
         {
           "username": employeeId,
@@ -51,6 +53,8 @@ export default function LoginPopup() {
     } catch (e: any) {
       console.log(e.response.data.message)
       showToast("เข้าสู่ระบบไม่สำเร็จ: " + e.response.data.message, "error")
+    } finally {
+      setLoading(false)
     }
     // if (response.data.data !== "invalid credentials") {
     //   router.replace("/home")
@@ -58,6 +62,7 @@ export default function LoginPopup() {
   }
 
   return <>
+    <LoadingScene loading={loading} />
     <div className="bg-foreground/35 fixed top-0 bottom-0 left-0 right-0 flex justify-center items-center">
       <div className="bg-white w-full max-w-[500px] rounded-xl flex flex-col p-6 gap-3">
         <div className="flex flex-col gap-1 items-center">

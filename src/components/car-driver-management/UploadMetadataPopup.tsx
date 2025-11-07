@@ -45,7 +45,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
 
   const checkNull = (row: RowData, checkColumn: string[]) => {
     for (const column of checkColumn) {
-      if (row[column] === "" || row[column] === "-") {
+      if (row[column].trim() === "" || row[column].trim() === "-") {
         throw new Error(`คอลัมน์ ${column} ไม่ถูกต้องตามที่ระบบกำหนด`)
       }
     }
@@ -78,10 +78,10 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
   const validateDestinationField = (jsonData: RowData[]) => {
     const columnCheck = ["ชื่อสถานที่", "ที่อยู่", "จังหวัด", "ภูมิภาค", "เส้นทาง"]
     for (const row of jsonData) {
-      if (isNaN(Number(row["ระยะทาง"]))) {
+      if (isNaN(Number(row["ระยะทาง"])) || Number(row["ระยะทาง"]) <= 0 || Number(row["ระยะทาง"]) > 10000) {
         throw new Error("คอลัมน์ ระยะทาง ไม่ถูกต้องตามที่ระบบกำหนด")
       }
-      if (isNaN(Number(row["ระยะเวลาที่ใช้เดินทาง"]))) {
+      if (isNaN(Number(row["ระยะเวลาที่ใช้เดินทาง"])) || Number(row["ระยะเวลาที่ใช้เดินทาง"]) <= 0 || Number(row["ระยะเวลาที่ใช้เดินทาง"]) > 10000) {
         throw new Error("คอลัมน์ ระยะเวลา ที่ใช้เดินทางไม่ถูกต้องตามที่ระบบกำหนด")
       }
       checkNull(row, columnCheck)
@@ -89,13 +89,14 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
   }
 
   const validateColumn = (jsonData: RowData[], columnName: string[], validateField?: (jsonData: RowData[]) => void) => {
-    console.log(jsonData)
     if (jsonData.length != 0 && jsonData != null && jsonData[0] != null) {
       for (const element of Object.keys(jsonData[0])) {
         if (!columnName.includes(element)) {
           throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
         }
       }
+    } else {
+      throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
     }
     if (validateField) {
       validateField(jsonData)
@@ -300,7 +301,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
             <li>
               กำหนดรูปแบบของไฟล์สถานที่จัดส่งจะต้องมีคอลัมน์ดังต่อไปนี้ ชื่อสถานที่, ที่อยู่, จังหวัด, ภูมิภาค, ระยะทาง, เส้นทาง, ระยะเวลาที่ใช้เดินทาง
               <ul className="list-disc list-inside pl-6">
-                <li>คอลัมน์ระยะทางและระยะเวลาที่ใช้เดินทางต้องเป็น <span className="font-bold">ตัวเลข</span> เป็นระยะเวลาและระยะทางจากต้นทาง SCBPK</li>
+                <li>คอลัมน์ระยะทางและระยะเวลาที่ใช้เดินทางต้องเป็น <span className="font-bold">ตัวเลข</span> มีค่าตั้งแต่ 1 - 10000 (เป็นระยะเวลาและระยะทางจากต้นทาง SCBPK)</li>
               </ul>
             </li>
             <li>ทุกคอลัมน์ไม่สามารถเป็นค่าว่างได้</li>

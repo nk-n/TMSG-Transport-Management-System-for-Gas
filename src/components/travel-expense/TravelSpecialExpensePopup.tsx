@@ -41,9 +41,17 @@ export default function TravelSpecialExpensePopup({ isPopupOpen, closePopup, spe
   // }, [])
 
   const addSpecialTrip = async () => {
+    if (descTravelSpecialExpense.trim() === "") {
+      showToast("ไม่สามารถปล่อยชื่อรายการเป็นค่าว่างได้", "error")
+      return
+    }
     const cost: number = Number(costTravelSpecialExpense)
-    if (cost < 0 || isNaN(cost)) {
-      showToast("ไม่สามารถกำหนดค่าเที่ยวพิเศษเป็นเลขติดลบหรือค่าที่ไม่ใช่ตัวเลขได้", "error")
+    if (cost <= 0 || isNaN(cost)) {
+      showToast("ไม่สามารถกำหนดค่าเที่ยวพิเศษเป็นเลขติดลบหรือ 0 หรือค่าที่ไม่ใช่ตัวเลขได้", "error")
+      return
+    }
+    if (cost > 10000 ) {
+      showToast("ไม่สามารถกำหนดค่าเที่ยวพิเศษเกิน 10,000 บาทได้", "error")
       return
     }
     const res = await apiClient.post("/trip/special-trip", {

@@ -96,11 +96,11 @@ export default function HomeHeader() {
 
   const fetchOrder = async () => {
     console.log("FETCHING DATA...")
-    const resWaiting = await apiClient.get(`/order/รอรับงาน`)
+    const resWaiting = await apiClient.get(`/order/รอรับงาน/true`)
     const dataWaiting: Order[] = resWaiting.data.data.map((element: OrderResponse) => {
       return toOrder(element)
     })
-    const resProgress = await apiClient.get(`/order/ระหว่างจัดส่งสินค้า`)
+    const resProgress = await apiClient.get(`/order/ระหว่างจัดส่งสินค้า/true`)
     const dataProgress: Order[] = resProgress.data.data.map((element: OrderResponse) => {
       return toOrder(element)
     })

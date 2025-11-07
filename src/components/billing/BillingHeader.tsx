@@ -54,16 +54,57 @@ export default function BillingHeader({ fetchData, fetchOil }: BillingHeader) {
     })
   }
 
+  const validateFileType = (file: File) => {
+    if (
+      file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" && // .xlsx
+      file.type !== "application/vnd.ms-excel" // .xls
+    ) {
+      throw new Error("ระบบรองรับไฟล์ประเภท .xlsx หรือ .xls เท่านั้น")
+    }
+  }
+
+  const validateField = (jsonData: RowData[]) => {
+    for (const row of jsonData) {
+      if (isNaN(Number(row["Start_KM"])) && Number(row["Start_KM"]) > 0 && Number(row["Start_KM"]) < 10000) {
+        throw new Error("คอลัมน์ Start_KM ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      if (isNaN(Number(row["End_KM"])) && Number(row["End_KM"]) > 0 && Number(row["End_KM"]) < 10000) {
+        throw new Error("คอลัมน์ End_KM ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      for (let i = 1; i <= Object.keys(row).length - 2; i++) {
+        if (isNaN(Number(row[`${i}`])) || Number(row[`${i}`]) <= 0 || Number(row[`${i}`]) > 100) {
+          throw new Error(`คอลัมน์ ${i} ไม่ถูกต้องตามที่ระบบกำหนด`)
+        }
+      }
+    }
+  }
+
+  const validateColumn = (jsonData: RowData[]) => {
+    if (jsonData.length > 2 && jsonData != null && jsonData[0] != null) {
+      const targetColumn = Object.keys(jsonData[0])
+      if (targetColumn[targetColumn.length - 2].trim() !== "Start_KM" || targetColumn[targetColumn.length - 1].trim() !== "End_KM") {
+        throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      for (let i = 0; i < targetColumn.length - 2; i++) {
+        if (targetColumn[i] !== String(i + 1)) {
+          throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
+        }
+      }
+    } else {
+      throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
+    }
+  }
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const orderColumn = ["ลำดับเที่ยว", "เลขออเดอร์", "เวลาที่ส่งมอบ", "น้ำหนักบรรทุก", "ต้นทาง", "ปลายทาง", "drop", "หมายเหตุ", "เบอร์รถ", "เบอร์พนักงานขับรถ1", "เบอร์พนักงานขับรถ2", "เวลาเข้าโหลด"]
     try {
       if (event.target.files != null) {
         const newFile = event.target.files[0]
-        // validateFileType(newFile)
+        validateFileType(newFile)
         const jsonData = await excelToJSON(newFile)
-        // validateColumn(jsonData, orderColumn)
-        // validateOrderField(jsonData)
+        validateColumn(jsonData)
+        validateField(jsonData)
         localStorage.setItem("billing", JSON.stringify(jsonData))
+        fetchBillingTable()
         fetchData()
         showToast("นำเข้าข้อมูลสำเร็จ", "success")
       }
@@ -140,15 +181,29 @@ export default function BillingHeader({ fetchData, fetchOil }: BillingHeader) {
                   </button>
               }
             </div>
-            <button className="flex items-center justify-center gap-1 border-1 border-neutral rounded-xl p-4 button-effect" onClick={() => {
-            }}>
+            <label htmlFor="upload-file" className="text-foreground cursor-pointer flex gap-3 button-effect border-1 border-neutral rounded-xl p-4">
               <FileIcon size={20} className="stroke-foreground" />
-              <p><label htmlFor="upload-file" className="text-foreground cursor-pointer"> นำเข้าข้อมูลค่าขนส่ง </label></p>
+              นำเข้าข้อมูลค่าขนส่ง
               <input id="upload-file" type="file" className=" hidden" onChange={handleFileUpload} />
-            </button>
+            </label>
             <p className="text-primary">{notion}</p>
           </div>
         </div>
+      </div>
+      <div className="w-full border-1 border-error bg-error-second p-6 rounded-xl text-error-third">
+        <p className="font-bold">ข้อกำหนดรูปแบบในการนำเข้าข้อมูล</p>
+        <ul className="list-disc list-inside">
+          <li>ระบบรองรับเฉพาะไฟล์ประเภท .xlsx และ .xls เท่านั้น</li>
+          <li>
+            กำหนดรูปแบบของไฟล์รถขนส่งจะต้องมีคอลัมน์ดังต่อไปนี้ Start_KM, End_KM, 1, 2, 3, 4, 5, ....
+            <ul className="list-disc list-inside pl-6">
+              <li>กำหนดให้ทุกคอลัมน์จะต้องเป็นตัวเลขและไม่มีค่าว่าง สำหรับคอลัมน์ Start_KM และ End_KM จะมีค่าตั้งแต่ 1-10000 และคอลัมน์ที่เหลือมีค่าตั้งแต่ 1-1000</li>
+              <li>แต่ช่วงของราคาน้ำมันห่างกัน 1 บาท เริ่มที่ 20.01-21.00, 21.01-22.00, ...</li>
+              <li>ดาวโหลดตัวอย่างไฟล์  <a className=" underline cursor-pointer font-bold" download={true} href="/delivery_fee_rate.xlsx">คลิก</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
       </div>
     </div>
   </>

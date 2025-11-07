@@ -18,10 +18,6 @@ export default function TravelExpenseHeader() {
             </div>
             <p className="text-neutral">ตรวจสอบและอนุมัติค่าเที่ยวให้กับพนักงานขับรถ</p>
           </div>
-          <button className="flex items-center justify-center gap-3 border-1 border-neutral rounded-xl p-3 cursor-pointer hover:scale-95 transition-all">
-            <FileIcon size={20} className="stroke-foreground" />
-            <p>นำออกข้อมูลค่าเที่ยว</p>
-          </button>
         </div>
       </div>
     </div>
