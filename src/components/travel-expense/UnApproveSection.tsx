@@ -15,7 +15,7 @@ export default function UnApproveSection({ openEditTravelExpensePopup }: UnAppro
   const [order, setOrder] = useState<Order[]>([])
 
   const fetchOrder = async () => {
-    const res = await apiClient.get(`/order/รออนุมัติ`)
+    const res = await apiClient.get(`/order/รออนุมัติ/true`)
     const data: Order[] = res.data.data.map((element: OrderResponse) => {
       return toOrder(element)
     })

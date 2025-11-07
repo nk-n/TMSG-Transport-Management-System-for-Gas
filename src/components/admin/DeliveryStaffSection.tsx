@@ -10,6 +10,7 @@ import { apiClient } from "@/src/services/apiClient"
 import { RowData } from "../car-driver-management/UploadMetadataPopup"
 import { useToast } from "../utils/ToastContext"
 import EditOrCreatePopup from "./EditOrCreatePopup"
+import ConfirmmationPopup from "../utils/ConfirmationPopup"
 
 export default function DeliveryStaffSection() {
   const { showToast } = useToast()
@@ -19,6 +20,7 @@ export default function DeliveryStaffSection() {
   const [editPopup, setEditPopup] = useState(false)
   const [createPopup, setCreatePopup] = useState(false)
   const [editData, setEditData] = useState<DeliveryStaff | null>(null)
+  const [confirmPopupIsOpen, setConfirmPopupIsOpen] = useState(false)
 
   // เก็บ state ของ checkbox แต่ละ Driver Card
   const [checkMap, setCheckMap] = useState<{ [id: string]: boolean }>()
@@ -90,6 +92,15 @@ export default function DeliveryStaffSection() {
 
   return <>
     <div className="bg-primary-second p-5 gap-5 flex flex-col rounded-2xl ">
+      <ConfirmmationPopup
+        isPopupOpen={confirmPopupIsOpen}
+        closePopup={() => {
+          setConfirmPopupIsOpen(false)
+        }}
+        deleteData={() => {
+          deleteDeliveryStaff()
+        }}
+      />
       <EditPopup isOpen={editPopup} closePopup={() => {
         setEditPopup(false)
       }} />
@@ -119,9 +130,9 @@ export default function DeliveryStaffSection() {
           controller={{ value: searchKeyword, handdleChange: handdleSearchKeyword }} />
         <button
           onClick={() => {
-            deleteDeliveryStaff()
+            setConfirmPopupIsOpen(true)
           }}
-          className="bg-error-second border-1 border-error rounded-xl px-5 py-3 cursor-pointer button-effect text-error">ลบพนักงานขับรถที่เลือก</button>
+          className="bg-error-second border-1 border-error rounded-xl px-5 py-3 cursor-pointer button-effect text-error">ลบพนักงานจัดส่งที่เลือก</button>
         <button
           onClick={() => {
             setCreatePopup(true)

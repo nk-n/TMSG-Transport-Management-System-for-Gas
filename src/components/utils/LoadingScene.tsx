@@ -9,6 +9,6 @@ export default function LoadingScene({ loading }: LoadingSceneProps) {
     "opacity-0 pointer-events-none": !loading
   })}>
     <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-    <p className="text-background text-2xl">กำลังนำเข้าข้อมูล...</p>
+    <p className="text-background text-2xl">ระบบกำลังประมวลผล...</p>
   </div>
 }
