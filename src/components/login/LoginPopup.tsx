@@ -51,14 +51,10 @@ export default function LoginPopup() {
       }
       showToast("เข้าสู่ระบบสำเร็จ", "success")
     } catch (e: any) {
-      console.log(e.response.data.message)
       showToast("เข้าสู่ระบบไม่สำเร็จ: " + e.response.data.message, "error")
     } finally {
       setLoading(false)
     }
-    // if (response.data.data !== "invalid credentials") {
-    //   router.replace("/home")
-    // }
   }
 
   return <>

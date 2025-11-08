@@ -14,18 +14,17 @@ export default function ApproveSection() {
   const [searchKeyword, setSearchKeyword] = useState("")
   const [order, setOrder] = useState<Order[]>([])
   const [filerOrder, setFilterOrder] = useState<Order[]>([])
-  const [specialTrip, setSpecialTrip] = useState<SpecialTrip[]>([])
 
   const calculateCost = async (order: Order): Promise<number> => {
-    const specialTrip = await fetchSpecialTrip(order.orderId)
+    const specialTrip = await fetchSpecialTrip(order.tripId)
     const totalTrip = specialTrip.reduce((sum, item) => {
       return sum + item.money
     }, 0)
     return order.money + totalTrip
   }
 
-  const fetchSpecialTrip = async (orderID: string): Promise<SpecialTrip[]> => {
-    const res = await apiClient.get(`/trip/special-trip/${orderID}`)
+  const fetchSpecialTrip = async (tripID: string): Promise<SpecialTrip[]> => {
+    const res = await apiClient.get(`/trip/special-trip/${tripID}`)
     const newSpecialTrip: SpecialTrip[] = res.data.data.map((element: SpecialTrip) => {
       return toSpecialTrip(element)
     })
@@ -33,28 +32,34 @@ export default function ApproveSection() {
   }
 
   const getRealDeliveryTime = (status: StatusHistory[]) => {
-    return status[status.length - 1].timestamp
+    if (status.length > 0) {
+      return status[status.length - 1].timestamp
+    }
+    return new Date()
   }
 
-  const exportExcel = () => {
-    const data = order.map(async (e) => {
-      return {
-        "เลขออเดอร์": e.orderId,
-        "เวลาที่ส่งมอบ": e.deadline,
-        "สถานะ": e.status,
-        "เวลาส่งมอบจริง": getRealDeliveryTime(e.statusHistory).toLocaleString('th-TH'),
-        "ค่าเที่ยว": await calculateCost(e),
-        "น้ำหนักบรรทุก": e.loadGas,
-        "ต้นทาง": "SC BPK",
-        "ปลายทาง": e.destination,
-        "drop": e.drop,
-        "หมายเหตุ": e.note.trim() === "" ? "-" : e.note,
-        "เบอร์รถ": e.carId,
-        "เบอร์พนักงานขับรถ1": e.drivers[0].tel,
-        "เบอร์พนักงานขับรถ2": e.drivers.length === 2 ? e.drivers[1].tel : "-",
-      }
-    })
-    const worksheet = XLSX.utils.json_to_sheet(order);
+  const exportExcel = async () => {
+    const data =
+      await Promise.all(
+        order.map(async (e) => {
+          return {
+            "เลขออเดอร์": e.orderId,
+            "สถานะ": e.status,
+            "เวลาส่งมอบ": e.deadline.toLocaleString('th-TH'),
+            "เวลาส่งมอบจริง": getRealDeliveryTime(e.statusHistory).toLocaleString('th-TH'),
+            "น้ำหนักบรรทุก": e.loadGas,
+            "ต้นทาง": "SC BPK",
+            "ปลายทาง": e.destination,
+            "drop": e.drop,
+            "หมายเหตุ": e.note.trim() === "" ? "-" : e.note,
+            "เบอร์รถ": e.carId,
+            "เบอร์พนักงานขับรถ1": e.drivers[0].tel,
+            "เบอร์พนักงานขับรถ2": e.drivers.length === 2 ? e.drivers[1].tel : "-",
+            "ค่าเที่ยว": await calculateCost(e),
+          }
+        })
+      )
+    const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
 
