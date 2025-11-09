@@ -3,7 +3,7 @@ export enum Status {
   Waiting = "รอโหลดสินค้า",
   Load = "โหลดสินค้า",
   Travel = "เดินทางส่ง",
-  Deliver = "ส่งสินค้า",
+  Deliver = "ลงสินค้า",
   Finish = "ส่งสำเร็จ",
   End = "จบงาน"
 }

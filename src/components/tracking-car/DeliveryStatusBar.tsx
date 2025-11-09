@@ -21,9 +21,9 @@ export enum DeliveryStatus {
   Start = "เริ่มงาน",
   WaitingLoad = "รอโหลดสินค้า",
   Load = "โหลดสินค้า",
-  Travel = "เดินทางไปปลายทาง",
-  Deliver = "ส่งสินค้า",
-  Finish = "จัดส่งเรียบร้อย"
+  Travel = "เดินทางส่ง",
+  Deliver = "ลงสินค้า",
+  Finish = "ส่งสำเร็จ"
 }
 
 
