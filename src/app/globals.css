@@ -1,26 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --font-noto-sans-thai: 'Noto Sans Thai', sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #292D32;
+
+  --color-primary: #4B83F0;
+  --color-primary-second: #EEF6FE;
+  --color-neutral: #8E8E8E;
+  --color-neutral-second: #F1F5F9;
+  --color-success: #23C45E;
+  --color-success-second: #E1FFEC;
+  --color-error: #FF5053;
+  --color-error-second: #FEF3F3;
+  --color-error-third: #A9281B;
+  --color-inprogress: #F0AB4B;
+  --color-inprogress-second: #FFF7EC;
+  --font-sans: var(--font-noto-sans-thai)
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer utilities {
+  .button-effect {
+    @apply hover:scale-95 transition-all active:scale-100 cursor-pointer;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    scrollbar-width: none;
 }

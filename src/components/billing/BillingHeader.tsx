@@ -1,0 +1,210 @@
+"use client"
+import { useEffect, useState } from "react";
+import { CoinIcon, FileIcon, PenIcon, PeopleIcon, UploadIcon } from "../icon/Icon";
+import InputBox from "../utils/InputBox";
+import { RowData } from "../car-driver-management/UploadMetadataPopup";
+import * as XLSX from "xlsx";
+import { useToast } from "../utils/ToastContext";
+
+interface BillingHeader {
+  fetchData: () => void
+  fetchOil: () => void
+}
+export default function BillingHeader({ fetchData, fetchOil }: BillingHeader) {
+  const [oilInput, setOilInput] = useState("")
+  const [oilPrice, setOilPrice] = useState(0)
+  const [editOil, setEditOil] = useState(false)
+  const [notion, setNotion] = useState("")
+  const { showToast } = useToast()
+
+  useEffect(() => {
+    fetchBillingTable()
+  }, [])
+
+  const fetchBillingTable = () => {
+    const storedData = localStorage.getItem("billing");
+    if (!storedData) {
+      setNotion("ไม่มีข้อมูลค่าขนส่งในระบบกรุณานำเข้าข้อมูลค่าขนส่ง")
+      return
+    }
+    setNotion("มีข้อมูลค่าขนส่งในระบบแล้ว (สามารถเปลี่ยนแปลงได้โดยการนำเข้าไฟล์ใหม่เข้าไปแทนที่)")
+  }
+
+  const excelToJSON = async (file: File): Promise<RowData[]> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const binaryStr = evt.target?.result;
+        if (!binaryStr) return;
+
+        const workbook = XLSX.read(binaryStr, { type: "binary" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+
+        const jsonData: RowData[] = XLSX.utils.sheet_to_json(sheet, { defval: "" })
+        const cleaned = jsonData.map(row => {
+          const { __EMPTY, __rowNum__, ...rest } = row;
+          return rest;
+        });
+
+        resolve(cleaned)
+      };
+      reader.onerror = () => reject(new Error("File read error"))
+      reader.readAsBinaryString(file);
+    })
+  }
+
+  const validateFileType = (file: File) => {
+    if (
+      file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" && // .xlsx
+      file.type !== "application/vnd.ms-excel" // .xls
+    ) {
+      throw new Error("ระบบรองรับไฟล์ประเภท .xlsx หรือ .xls เท่านั้น")
+    }
+  }
+
+  const validateField = (jsonData: RowData[]) => {
+    for (const row of jsonData) {
+      if (isNaN(Number(row["Start_KM"])) && Number(row["Start_KM"]) > 0 && Number(row["Start_KM"]) < 10000) {
+        throw new Error("คอลัมน์ Start_KM ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      if (isNaN(Number(row["End_KM"])) && Number(row["End_KM"]) > 0 && Number(row["End_KM"]) < 10000) {
+        throw new Error("คอลัมน์ End_KM ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      for (let i = 1; i <= Object.keys(row).length - 2; i++) {
+        if (isNaN(Number(row[`${i}`])) || Number(row[`${i}`]) <= 0 || Number(row[`${i}`]) > 100) {
+          throw new Error(`คอลัมน์ ${i} ไม่ถูกต้องตามที่ระบบกำหนด`)
+        }
+      }
+    }
+  }
+
+  const validateColumn = (jsonData: RowData[]) => {
+    if (jsonData.length > 2 && jsonData != null && jsonData[0] != null) {
+      const targetColumn = Object.keys(jsonData[0])
+      if (targetColumn[targetColumn.length - 2].trim() !== "Start_KM" || targetColumn[targetColumn.length - 1].trim() !== "End_KM") {
+        throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
+      }
+      for (let i = 0; i < targetColumn.length - 2; i++) {
+        if (targetColumn[i] !== String(i + 1)) {
+          throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
+        }
+      }
+    } else {
+      throw new Error("คอลัมน์ไม่ถูกต้องตามที่ระบบกำหนด")
+    }
+  }
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (event.target.files != null) {
+        const newFile = event.target.files[0]
+        validateFileType(newFile)
+        const jsonData = await excelToJSON(newFile)
+        validateColumn(jsonData)
+        validateField(jsonData)
+        localStorage.setItem("billing", JSON.stringify(jsonData))
+        fetchBillingTable()
+        fetchData()
+        showToast("นำเข้าข้อมูลสำเร็จ", "success")
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        showToast("นำเข้าข้อมูลไม่สำเร็จ: " + err.message, "error")
+      }
+    }
+    event.target.value = "";
+  }
+
+  const handdleSaveOilPrice = () => {
+    if (isNaN(Number(oilInput)) || Number(oilInput) === 0) {
+      setEditOil(false)
+      return
+    }
+    localStorage.setItem("oil_price", String(oilInput))
+    fetchOil()
+    setEditOil(false)
+    setOilPrice(Number(oilInput))
+  }
+
+  const fetchOilPrice = () => {
+    const oilPrice: string | null = localStorage.getItem("oil_price")
+    setOilPrice(Number(oilPrice))
+  }
+
+  useEffect(() => {
+    fetchOilPrice()
+  }, [])
+
+  return <>
+    <div className="flex flex-col gap-10">
+      <div className="flex gap-10 items-center">
+        <div className="flex justify-between items-center w-full">
+          <div className="flex items-center gap-10">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <CoinIcon size={24} className="  stroke-foreground" />
+                <p className="font-bold text-xl">วางบิลค่าขนส่ง</p>
+              </div>
+              <p className="text-neutral">จัดการคำนวณค่าขนส่งเพื่อเรียกเก็บกับผู้ว่าจ้าง</p>
+            </div>
+            <div className="border-neutral border-1 rounded-xl p-4 flex gap-4 items-center">
+              <p>กำหนดราคาน้ำมัน (บาท/ลิตร):</p>
+              <p className="font-bold">{oilPrice}</p>
+              {
+                editOil ?
+                  <div className="flex gap-4">
+                    <InputBox placeholder="ราคาน้ำมัน" controller={
+                      {
+                        value: oilInput,
+                        handdleChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                          setOilInput(e.target.value)
+                        }
+                      }
+                    } />
+                    <button className="border-1 border-neutral p-3 button-effect rounded-xl"
+                      onClick={() => {
+                        handdleSaveOilPrice()
+
+                      }}
+                    >
+                      ตกลง
+                    </button>
+                  </div>
+                  :
+                  <button className="button-effect"
+                    onClick={() => {
+                      setEditOil(true)
+                    }}
+                  >
+                    <PenIcon size={20} className="stroke-foreground" />
+                  </button>
+              }
+            </div>
+            <label htmlFor="upload-file" className="text-foreground cursor-pointer flex gap-3 button-effect border-1 border-neutral rounded-xl p-4">
+              <FileIcon size={20} className="stroke-foreground" />
+              นำเข้าข้อมูลค่าขนส่ง
+              <input id="upload-file" type="file" className=" hidden" onChange={handleFileUpload} />
+            </label>
+            <p className="text-primary">{notion}</p>
+          </div>
+        </div>
+      </div>
+      <div className="w-full border-1 border-error bg-error-second p-6 rounded-xl text-error-third">
+        <p className="font-bold">ข้อกำหนดรูปแบบในการนำเข้าข้อมูล</p>
+        <ul className="list-disc list-inside">
+          <li>ระบบรองรับเฉพาะไฟล์ประเภท .xlsx และ .xls เท่านั้น</li>
+          <li>
+            กำหนดรูปแบบของไฟล์รถขนส่งจะต้องมีคอลัมน์ดังต่อไปนี้ Start_KM, End_KM, 1, 2, 3, 4, 5, ....
+            <ul className="list-disc list-inside pl-6">
+              <li>กำหนดให้ทุกคอลัมน์จะต้องเป็นตัวเลขและไม่มีค่าว่าง สำหรับคอลัมน์ Start_KM และ End_KM จะมีค่าตั้งแต่ 1-10000 และคอลัมน์ที่เหลือมีค่าตั้งแต่ 1-1000</li>
+              <li>แต่ช่วงของราคาน้ำมันห่างกัน 1 บาท เริ่มที่ 20.01-21.00, 21.01-22.00, ...</li>
+              <li>ดาวโหลดตัวอย่างไฟล์  <a className=" underline cursor-pointer font-bold" download={true} href="/delivery_fee_rate.xlsx">คลิก</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </>
+}
