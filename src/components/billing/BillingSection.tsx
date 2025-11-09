@@ -6,6 +6,7 @@ import { SearchIcon } from "../icon/Icon"
 import BillingCard from "./BillingCard"
 import { apiClient } from "@/src/services/apiClient"
 import { RowData } from "../car-driver-management/UploadMetadataPopup"
+import { SearchX } from "lucide-react"
 
 interface BillingSectionProps {
   billingData: RowData[]
@@ -21,7 +22,7 @@ export default function BillingSection({ billingData, oil }: BillingSectionProps
     const totalFee = filerOrder.reduce((sum, order) => sum + calculateBilling(order) * order.loadGas, 0);
     return totalFee
   }
-  
+
 
   const calculateBilling = (order: Order): number => {
     if (billingData.length === 0) {
@@ -106,7 +107,16 @@ export default function BillingSection({ billingData, oil }: BillingSectionProps
       <InputBox
         leading={<SearchIcon size={24} />}
         placeholder="ค้นหา"
-        controller={{ value: searchKeyword, handdleChange: handleSearchKeyword }} />
+        controller={{ value: searchKeyword, handdleChange: handleSearchKeyword }}
+      />
+      {filerOrder.length === 0 ?
+        <div className="w-full flex flex-col justify-center items-center h-[150px] gap-4 rounded-xl mt-3 bg-white">
+          <SearchX className="stroke-neutral" size={50} />
+          <p className="text-neutral">ไม่พบออเดอร์ที่มีสถานะอนุมัติ</p>
+        </div>
+        :
+        <></>
+      }
       {
         filerOrder.map((element) => {
           return (

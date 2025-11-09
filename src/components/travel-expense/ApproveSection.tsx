@@ -9,6 +9,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { StatusHistory } from "@/src/types/StatusHistory"
 import { SpecialTrip, toSpecialTrip } from "@/src/types/Trip"
+import { SearchX } from "lucide-react"
 
 export default function ApproveSection() {
   const [searchKeyword, setSearchKeyword] = useState("")
@@ -124,6 +125,14 @@ export default function ApproveSection() {
           <p>นำออกข้อมูลค่าเที่ยว</p>
         </button>
       </div>
+      {filerOrder.length === 0 ?
+        <div className="w-full flex flex-col justify-center items-center h-[150px] gap-4 rounded-xl mt-3 bg-white">
+          <SearchX className="stroke-neutral" size={50} />
+          <p className="text-neutral">ไม่พบออเดอร์ที่มีสถานะอนุมัติ</p>
+        </div>
+        :
+        <></>
+      }
       {
         filerOrder.map((element) => {
           return (

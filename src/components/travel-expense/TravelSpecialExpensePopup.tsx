@@ -50,7 +50,7 @@ export default function TravelSpecialExpensePopup({ isPopupOpen, closePopup, spe
       showToast("ไม่สามารถกำหนดค่าเที่ยวพิเศษเป็นเลขติดลบหรือ 0 หรือค่าที่ไม่ใช่ตัวเลขได้", "error")
       return
     }
-    if (cost > 10000 ) {
+    if (cost > 10000) {
       showToast("ไม่สามารถกำหนดค่าเที่ยวพิเศษเกิน 10,000 บาทได้", "error")
       return
     }
@@ -91,16 +91,11 @@ export default function TravelSpecialExpensePopup({ isPopupOpen, closePopup, spe
           <p className="text-5xl text-success font-bold">฿{totalTrip().toFixed(2)}</p>
         </div>
         <div className="pb-6 border-b-1 border-neutral w-full gap-3 flex flex-col">
-          <p className="w-full text-start">ระยะทาง (กิโลเมตร)</p>
-          <p className="border border-neutral rounded-xl py-3 px-3">{distance}</p>
-          {/* <InputBox placeholder="ระยะทาง" controller={{
-            value: distance, handdleChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-              setDistance(e.target.value)
-            }
-          }} /> */}
+          <p className="w-full text-start text-neutral"> ระยะทางวิ่ง: <span className="rounded-xl cursor-default text-foreground">{distance} กิโลเมตร</span>
+          </p>
         </div>
         <div className="border-b-1 border-b-neutral pb-6 w-full gap-4 flex flex-col">
-          <p>รายละเอียดค่าเที่ยว</p>
+          <p>รายละเอียดค่าเที่ยวพิเศษ</p>
           {
             specialTrip.map((element) => {
               return (
@@ -109,7 +104,7 @@ export default function TravelSpecialExpensePopup({ isPopupOpen, closePopup, spe
                     <p>{element.reason}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <p className="text-inprogress">฿{element.money}</p>
+                    <p className="text-inprogress">฿{element.money.toLocaleString('th-TH', { minimumFractionDigits: 2 })}</p>
                     <button className="cursor-pointer" onClick={() => {
                       deleteSpecialTrip(element.special_trip_id)
                     }}>

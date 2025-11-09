@@ -136,17 +136,17 @@ export default function TravelExpenseCard({ order, fetchOrder }: TrackingCarCard
           <p className="text-neutral">ปลายทาง</p>
           <p>{order.destination}</p>
           <p className="mt-4 text-neutral">กิโลกรัมแก๊สที่ลงให้ลูกค้า</p>
-          <p>{order.serveGas == 0 ? "-" : order.serveGas}</p>
+          <p>{order.serveGas == 0 ? "-" : (order.serveGas).toLocaleString('th-TH') + " กิโลกรัม"}</p>
         </div>
         <div className="flex-1">
           <p className="text-neutral">ปริมาณแก๊สที่โหลด</p>
-          <p>{order.loadGas} กิโลกรัม</p>
+          <p>{order.loadGas.toLocaleString('th-TH')} กิโลกรัม</p>
           <p className="mt-4 text-neutral">แก๊สเหลือ</p>
-          <p>{order.serveGas === 0 ? "-" : order.loadGas - order.serveGas}</p>
+          <p>{order.serveGas === 0 ? "-" : (order.loadGas - order.serveGas).toLocaleString('th-TH') + " กิโลกรัม"}</p>
         </div>
         <div className="border-1 border-neutral rounded-xl flex-[0.5] p-4">
           <p className="font-bold text-primary">ค่าเที่ยว</p>
-          <p className="text-4xl font-bold text-primary">{totalTrip().toFixed(2)}</p>
+          <p className="text-4xl font-bold text-primary">฿{totalTrip().toLocaleString('th-TH', { minimumFractionDigits: 2 })}</p>
           {order.status === OrderStatus.Approve ?
             <></>
             :

@@ -79,13 +79,13 @@ export default function TrackingCarCard({ order }: TrackingCarCardProps) {
           <p className="text-neutral">ปลายทาง</p>
           <p>{order.destination}</p>
           <p className="mt-4 text-neutral">กิโลกรัมแก๊สที่ลงให้ลูกค้า</p>
-          <p>{order.serveGas == 0 ? "-" : order.serveGas}</p>
+          <p>{order.serveGas == 0 ? "-" : order.serveGas.toLocaleString('th-TH') + " กิโลกรัม"}</p>
         </div>
         <div className="flex-1">
           <p className="text-neutral">ปริมาณแก๊สที่โหลด</p>
-          <p>{order.loadGas} กิโลกรัม</p>
+          <p>{order.loadGas.toLocaleString('th-TH')} กิโลกรัม</p>
           <p className="mt-4 text-neutral">แก๊สเหลือ</p>
-          <p>{order.serveGas === 0 ? "-" : order.loadGas - order.serveGas}</p>
+          <p>{order.serveGas === 0 ? "-" : (order.loadGas - order.serveGas).toLocaleString('th-TH') + " กิโลกรัม"}</p>
         </div>
       </div>
       <p>ความคืบหน้า ({order.statusHistory.length > 5 ? "5" : order.statusHistory.length}/5) จุด</p>

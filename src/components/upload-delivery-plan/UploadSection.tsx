@@ -146,7 +146,7 @@ export default function UploadSection() {
         })
         await apiClient.post("/order/", orderPostBody)
         setLoading(false)
-        showToast("นำเข้าข้อมูลสำเร็จ", "success")
+        showToast(`นำเข้าข้อมูลออเดอร์จำนวน ${orderPostBody.length} ออเดอร์สำเร็จ`, "success")
         setFile(null)
       }
     } catch (err: any) {

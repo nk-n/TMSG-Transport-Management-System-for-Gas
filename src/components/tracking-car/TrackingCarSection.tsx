@@ -8,6 +8,7 @@ import { apiClient } from "@/src/services/apiClient";
 import FilterPopup from "../car-driver-management/FilterPopup";
 import { useSelector } from "react-redux";
 import { RootState } from "@/src/store/store";
+import { SearchX } from "lucide-react";
 
 export default function TrackingCarSection() {
   const [searchKeyword, setSearchKeyword] = useState("")
@@ -90,6 +91,14 @@ export default function TrackingCarSection() {
           }} />
         </div>
       </div>
+      {filerOrder.length === 0 ?
+        <div className="w-full flex flex-col justify-center items-center h-[150px] gap-4 rounded-xl mt-3 bg-white">
+          <SearchX className="stroke-neutral" size={50} />
+          <p className="text-neutral">ไม่พบออเดอร์ที่มีสถานะรอรับงานหรือกำลังจัดส่ง</p>
+        </div>
+        :
+        <></>
+      }
       {
         filerOrder.map((element) => {
           return (

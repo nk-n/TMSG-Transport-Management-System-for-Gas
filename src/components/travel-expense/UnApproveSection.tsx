@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import InputBox from "../utils/InputBox"
 import { SearchIcon } from "../icon/Icon"
 import TravelExpenseCard from "./TravelExpenseCard"
+import { SearchX } from "lucide-react"
 
 interface UnApproveSectionProps {
   openEditTravelExpensePopup: () => void
@@ -65,6 +66,14 @@ export default function UnApproveSection({ openEditTravelExpensePopup }: UnAppro
         leading={<SearchIcon size={24} />}
         placeholder="ค้นหา"
         controller={{ value: searchKeyword, handdleChange: handleSearchKeyword }} />
+      {filerOrder.length === 0 ?
+        <div className="w-full flex flex-col justify-center items-center h-[150px] gap-4 rounded-xl mt-3 bg-white">
+          <SearchX className="stroke-neutral" size={50} />
+          <p className="text-neutral">ไม่พบออเดอร์ที่มีสถานะรออนุมัติ</p>
+        </div>
+        :
+        <></>
+      }
       {
         filerOrder.map((element) => {
           return (

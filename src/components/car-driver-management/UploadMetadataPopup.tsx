@@ -189,7 +189,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
   const uploadCarData = async (data: CarPostBody[]) => {
     try {
       const res = await apiClient.post("/metadata/cars", data)
-      showToast("บันทึกข้อมูลสำเร็จ", "success")
+      showToast(`บันทึกข้อมูลรถขนส่งจำนวน ${data.length} คันสำเร็จ`, "success")
     } catch (err: any) {
       showToast(err.message, "error")
     }
@@ -198,7 +198,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
   const uploadDriverData = async (data: DriverPostBody[]) => {
     try {
       await apiClient.post("/metadata/drivers", data)
-      showToast("บันทึกข้อมูลสำเร็จ", "success")
+      showToast(`บันทึกข้อมูลพนักงานขับรถจำนวน ${data.length} คนสำเร็จ`, "success")
     } catch (err: any) {
       showToast(err.message, "error")
     }
@@ -207,7 +207,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
   const uploadDestinationData = async (data: DestinationPostBody[]) => {
     try {
       await apiClient.post("/metadata/destinations", data)
-      showToast("บันทึกข้อมูลสำเร็จ", "success")
+      showToast(`บันทึกข้อมูลสถานที่จัดส่งปลายทางจำนวน ${data.length} สถานที่สำเร็จ`, "success")
     } catch (err: any) {
       showToast(err.message, "error")
     }
@@ -297,7 +297,7 @@ export default function UploadMetadataPopup({ isPopupOpen, closePopup }: UploadM
                 <li>คอลัมน์ประเภทรถกำหนดให้ 3 ค่า: <span className="font-bold">หัวลาก</span>, <span className="font-bold">สิบล้อ</span>, <span className="font-bold">กึ่งพ่วง</span></li>
               </ul>
             </li>
-            <li>กำหนดรูปแบบของไฟล์จะต้องมีคอลัมน์ดังต่อไปนี้ ชื่อ-สกุล, เบอร์ติดต่อ</li>
+            <li>กำหนดรูปแบบของไฟล์พนักงานขับรถจะต้องมีคอลัมน์ดังต่อไปนี้ ชื่อ-สกุล, เบอร์ติดต่อ</li>
             <li>
               กำหนดรูปแบบของไฟล์สถานที่จัดส่งจะต้องมีคอลัมน์ดังต่อไปนี้ ชื่อสถานที่, ที่อยู่, จังหวัด, ภูมิภาค, ระยะทาง, เส้นทาง, ระยะเวลาที่ใช้เดินทาง
               <ul className="list-disc list-inside pl-6">
